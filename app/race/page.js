@@ -87,6 +87,7 @@ export default function RacePage() {
   const pollIntervalRef = useRef(null);
   const userInputRef = useRef('');
   const raceStartTimeRef = useRef(null);
+  const countdownStartedRef = useRef(false); // Track if we've started countdown for this race
 
   // Set mounted flag on client
   useEffect(() => {
@@ -201,23 +202,35 @@ export default function RacePage() {
         });
       });
       
-      // If race is active and has a startTime, calculate countdown
-      if (data.status === 'active' && data.startTime && !raceStarted) {
-        // Calculate remaining countdown based on server's startTime
-        const elapsedSeconds = Math.floor((Date.now() - new Date(data.startTime).getTime()) / 1000);
-        const remainingCountdown = Math.max(0, 10 - elapsedSeconds);
-        
-        if (remainingCountdown > 0) {
-          setCountDown(remainingCountdown);
-        } else {
-          // Countdown finished, start the race
-          const startTime = Date.now();
-          setRaceStartTime(startTime);
-          setRaceStarted(true);
-          // Don't reset userInput here - let it persist
-          setFinished(false);
-          setCountDown(null);
-          setTimeout(() => inputRef.current?.focus(), 100);
+      // If race is active and has a startTime, sync countdown for all players
+      if (data.status === 'active' && data.startTime) {
+        // Start countdown on opponent's browser too (if not already started)
+        if (!countdownStartedRef.current) {
+          countdownStartedRef.current = true;
+          
+          // Calculate remaining countdown based on server's startTime
+          const elapsedSeconds = Math.floor((Date.now() - new Date(data.startTime).getTime()) / 1000);
+          const remainingCountdown = Math.max(0, 10 - elapsedSeconds);
+          
+          // Start local countdown (just like owner does)
+          const startCountdown = (count) => {
+            if (count > 0) {
+              setCountDown(count);
+              setTimeout(() => startCountdown(count - 1), 1000);
+            } else {
+              setCountDown(null);
+              // Race phase starts
+              if (!raceStarted) {
+                const startTime = Date.now();
+                setRaceStartTime(startTime);
+                setRaceStarted(true);
+                setFinished(false);
+              }
+            }
+          };
+          
+          // Start from remaining countdown
+          startCountdown(remainingCountdown);
         }
       }
     } catch (err) {
@@ -272,6 +285,13 @@ export default function RacePage() {
     const handleGlobalKeyDown = (e) => {
       // Prevent typing while countdown is active or race hasn't started
       if (!raceStarted || countDown > 0 || mode !== 'racing' || !currentSentence) return;
+
+      // Allow Enter to manually finish the race
+      if (e.key === 'Enter' && !finished) {
+        e.preventDefault();
+        finishRace();
+        return;
+      }
 
       let newInput = userInputRef.current;
 
@@ -337,45 +357,13 @@ export default function RacePage() {
             // This is just for server-side tracking
           });
 
-        // Check if finished
-        if (newInput === currentSentence && !finished) {
-          console.log('Race finished! User completed the sentence');
-          setFinished(true);
-          
-          // Get user email for fallback auth
-          let userEmail = session?.user?.email;
-          if (!userEmail) {
-            const authUser = localStorage.getItem('authUser');
-            if (authUser) {
-              try {
-                const userData = JSON.parse(authUser);
-                userEmail = userData.email;
-              } catch (error) {
-                // Silently catch
-              }
-            }
-          }
-          
-          // Update local state to 100% immediately
-          setParticipants(prev => prev.map(p => 
-            p.userId === currentUserId 
-              ? { ...p, progress: currentSentence.length, finished: true }
-              : p
-          ));
-
-          fetch(`/api/race/${encodeURIComponent(roomCode)}/finish`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ wpm, accuracy, rawWpm, userEmail })
-          })
-            .then(res => res.json())
-            .then(data => {
-              setTimeout(() => {
-                setResults(data.results || []);
-                setShowResultsModal(true);
-              }, 2000);
-            })
-            .catch(err => console.error('Failed to finish race:', err));
+        // Check if finished: either typed exactly correct OR reached the sentence length
+        if (!finished && (newInput === currentSentence || progress >= currentSentence.length)) {
+          console.log('Race finished!', { 
+            exact: newInput === currentSentence, 
+            reachedLength: progress >= currentSentence.length 
+          });
+          finishRaceWithStats(wpm, accuracy, rawWpm, userEmail);
         }
       }
     };
@@ -642,6 +630,63 @@ export default function RacePage() {
     return typed.length > 0 ? (correctChars / typed.length) * 100 : 100;
   };
 
+  // Helper function to finish the race with stats
+  const finishRaceWithStats = (wpm, accuracy, rawWpm, userEmail) => {
+    if (finished) return; // Prevent multiple finishes
+    
+    setFinished(true);
+
+    // Update local state to finished immediately
+    setParticipants(prev => prev.map(p => 
+      p.userId === currentUserId 
+        ? { ...p, progress: currentSentence.length, finished: true }
+        : p
+    ));
+
+    fetch(`/api/race/${encodeURIComponent(roomCode)}/finish`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wpm, accuracy, rawWpm, userEmail })
+    })
+      .then(res => res.json())
+      .then(data => {
+        setTimeout(() => {
+          setResults(data.results || []);
+          setShowResultsModal(true);
+        }, 2000);
+      })
+      .catch(err => console.error('Failed to finish race:', err));
+  };
+
+  // Manual race finish (called by Enter key)
+  const finishRace = () => {
+    if (finished) return;
+    
+    const typed = userInputRef.current.split('');
+    const sentenceChars = currentSentence.split('');
+    const correctChars = typed.filter((char, idx) => char === sentenceChars[idx]).length;
+    const accuracy = typed.length > 0 ? (correctChars / typed.length) * 100 : 100;
+    const elapsed = Date.now() - raceStartTimeRef.current;
+    const wpm = calculateWPM(correctChars, elapsed);
+    const rawWpm = calculateRawWPM(correctChars, elapsed);
+
+    // Get user email for fallback auth
+    let userEmail = session?.user?.email;
+    if (!userEmail) {
+      const authUser = localStorage.getItem('authUser');
+      if (authUser) {
+        try {
+          const userData = JSON.parse(authUser);
+          userEmail = userData.email;
+        } catch (error) {
+          // Silently catch
+        }
+      }
+    }
+
+    finishRaceWithStats(wpm, accuracy, rawWpm, userEmail);
+  };
+
   const handleKeyDown = (e) => {
     // Prevent page scrolling when space is pressed, but allow the character to be typed
     if (e.key === ' ' && !e.ctrlKey && !e.metaKey) {
@@ -742,10 +787,14 @@ export default function RacePage() {
     // Force a small delay to ensure state is cleared before navigation
     userInputRef.current = '';
     raceStartTimeRef.current = null;
+    countdownStartedRef.current = false;
   };
 
   const handleRestartRace = async () => {
     try {
+      // Reset countdown tracking for new race
+      countdownStartedRef.current = false;
+      
       // Reset race state while keeping room and participants
       setUserInput('');
       setRaceStarted(false);
@@ -1175,10 +1224,15 @@ export default function RacePage() {
 
                 {/* Sentence Display with Current Word Highlighted */}
                 <div className="mb-8">
-                  <p className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'} text-center text-sm mb-4 uppercase tracking-wide`}>
-                    Type the sentence:
-                  </p>
-                  <div className={`${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-100'} p-6 rounded-lg mb-6 relative min-h-[100px] flex items-center justify-start`}>
+                  <div className="text-center mb-2">
+                    <p className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'} text-center text-sm mb-2 uppercase tracking-wide`}>
+                      Type the sentence:
+                    </p>
+                    <p className={`${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'} text-xs`}>
+                      ({currentSentence?.length || 0} characters • Press Enter to finish)
+                    </p>
+                  </div>
+                  <div className={`${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-100'} p-6 rounded-lg mb-4 relative min-h-[100px] flex items-center justify-start`}>
                     {!currentSentence ? (
                       <p className={theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}>Loading sentence...</p>
                     ) : (
