@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth Tables
+model Account {
+  id                 String  @id @default(cuid()) @map("_id")
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+  
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid()) @map("_id")
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid()) @map("_id")
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Class Management
+model Class {
+  id        String   @id @default(cuid()) @map("_id")
+  name      String   // e.g., "EY jupiter", "EY venus"
+  teacherId String   // Reference to the teacher
+  teacher   User     @relation("TeacherClass", fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  students  User[]   @relation("StudentClass")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, teacherId])
+  @@index([teacherId])
+}
+
+// App User Model
+model User {
+  id            String    @id @default(cuid()) @map("_id")
+  name          String?   // Full name from OAuth
+  username      String?   @unique
+  email         String?   @unique
+  emailVerified DateTime?
+  password      String?
+  gender        String?
+  image         String?
+  role          String    @default("student") // student, teacher
+  classId       String?   // For students assigned to class
+  class         Class?    @relation("StudentClass", fields: [classId], references: [id], onDelete: SetNull)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // NextAuth relations
+  accounts      Account[]
+  sessions      Session[]
+
+  scores        Score[]
+  createdRaces  Race[]    @relation("CreatedRaces")
+  raceParticipants RaceParticipant[] @relation("RaceParticipants")
+  lessonProgress LessonProgress[]
+  teacherClasses Class[]  @relation("TeacherClass") // Classes this user teaches
+}
+
+model Score {
+  id        String   @id @default(cuid()) @map("_id")
+  wpm       Int
+  accuracy  Float
+  rawWpm    Int
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([wpm])
+  @@index([userId])
+}
+
+model Race {
+  id           String   @id @default(cuid()) @map("_id")
+  roomCode     String   @unique
+  status       String   @default("waiting") // waiting, active, finished
+  startTime    DateTime?
+  endTime      DateTime?
+  countdown    Int      @default(0) // Countdown timer (0-10)
+  createdAt    DateTime @default(now())
+
+  creatorId    String
+  creator      User     @relation("CreatedRaces", fields: [creatorId], references: [id], onDelete: Cascade)
+  
+  participants RaceParticipant[]
+  sentenceId   Int      @default(0)
+
+  @@index([creatorId])
+}
+
+model RaceParticipant {
+  id           String   @id @default(cuid()) @map("_id")
+  raceId       String
+  race         Race     @relation(fields: [raceId], references: [id], onDelete: Cascade)
+  
+  userId       String
+  user         User     @relation("RaceParticipants", fields: [userId], references: [id], onDelete: Cascade)
+  
+  wpm          Float    @default(0)
+  rawWpm       Float    @default(0)
+  accuracy     Float    @default(100)
+  progress     Int      @default(0) // characters typed
+  finished     Boolean  @default(false)
+  finishTime   DateTime?
+  createdAt    DateTime @default(now())
+
+  @@unique([raceId, userId])
+  @@index([raceId])
+  @@index([userId])
+}
+
+model LessonProgress {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId  Int
+  completed Boolean  @default(false)
+  completedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+}
+
+model Activity {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String
+  isActive  Boolean
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([userId, timestamp])
+  @@index([timestamp])
+}
