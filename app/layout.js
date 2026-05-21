@@ -1,5 +1,6 @@
 import { Providers } from './providers';
 import './globals.css';
+import SplashCursor from '@/components/SplashCursor';
 
 // 1. Import the DM_Sans font from next/font/google
 import { DM_Sans } from 'next/font/google';
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
     // Apply the font class to the <html> element
     <html lang="en" className={`${dmSans.variable}`}>
       <body>
+        <SplashCursor />
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -187,37 +187,41 @@ export default function RacePage() {
         setRace(data);
       }
       
-      // Update participants, but preserve current user's local progress during active race
+      // Update participants from server - ALWAYS update to get latest finished status
       setParticipants(prevParticipants => {
         return (data.participants || []).map(newP => {
-          // If this is the current user and race is active, preserve local state
-          // Only update other players from polling
+          // If this is the current user and race is active and we have local typing state, preserve ONLY the progress/input
+          // But ALWAYS update finished status from server
           if (newP.userId === currentUserId && raceStarted) {
             const currentUserState = prevParticipants.find(p => p.userId === currentUserId);
-            if (currentUserState) {
-              return currentUserState; // Keep local state instead of server state
+            if (currentUserState && !currentUserState.finished) {
+              // Keep local progress state but use server's finished status
+              return {
+                ...currentUserState,
+                finished: newP.finished, // Always use server's finished status
+                finishTime: newP.finishTime
+              };
             }
           }
+          // For other players, ALWAYS use server data to show their real finished status
           return newP;
         });
       });
       
-      // If race is active and has a startTime, sync countdown for all players
+      // If race is active and has a startTime, sync countdown for all players (invited user needs this)
       if (data.status === 'active' && data.startTime) {
-        // Start countdown on opponent's browser too (if not already started)
-        if (!countdownStartedRef.current) {
-          countdownStartedRef.current = true;
-          
-          // Calculate remaining countdown based on server's startTime
-          const elapsedSeconds = Math.floor((Date.now() - new Date(data.startTime).getTime()) / 1000);
-          const remainingCountdown = Math.max(0, 10 - elapsedSeconds);
-          
-          // Start local countdown (just like owner does)
+        // Calculate remaining countdown based on server's startTime
+        const elapsedSeconds = Math.floor((Date.now() - new Date(data.startTime).getTime()) / 1000);
+        const remainingCountdown = Math.max(0, 10 - elapsedSeconds);
+        
+        // Show countdown if time remains, even if already started
+        if (remainingCountdown > 0 && countDown === null && !raceStarted) {
+          // Start countdown immediately for invited user
           const startCountdown = (count) => {
-            if (count > 0) {
+            if (count > 0 && isActive) {
               setCountDown(count);
               setTimeout(() => startCountdown(count - 1), 1000);
-            } else {
+            } else if (count === 0 && isActive) {
               setCountDown(null);
               // Race phase starts
               if (!raceStarted) {
@@ -229,8 +233,16 @@ export default function RacePage() {
             }
           };
           
-          // Start from remaining countdown
           startCountdown(remainingCountdown);
+          countdownStartedRef.current = true;
+        } else if (remainingCountdown === 0 && !raceStarted && isActive) {
+          // Countdown finished, start race immediately
+          setCountDown(null);
+          const startTime = Date.now();
+          setRaceStartTime(startTime);
+          setRaceStarted(true);
+          setFinished(false);
+          countdownStartedRef.current = true;
         }
       }
     } catch (err) {
@@ -243,10 +255,9 @@ export default function RacePage() {
     if (!roomCode || mode !== 'racing') return;
 
     // Poll for updates - frequency depends on race state
-    // Before race starts: 500ms for countdown sync
-    // During race: 50ms for live participant updates (smoother cursor movement)
-    // After race: 500ms for results
-    const pollInterval = raceStarted ? 50 : 500;
+    // Before race starts: 300ms for countdown sync (invitee needs to see countdown)
+    // During race: 30ms for real-time participant updates and finished status
+    const pollInterval = raceStarted ? 30 : 300;
     pollIntervalRef.current = setInterval(pollRaceUpdates, pollInterval);
 
     return () => {
