@@ -209,14 +209,16 @@ export default function RacePage() {
       });
       
       // If race is active and has a startTime, sync countdown for all players (invited user needs this)
-      if (data.status === 'active' && data.startTime) {
+      if (data.status === 'active' && data.startTime && !countdownStartedRef.current) {
         // Calculate remaining countdown based on server's startTime
         const elapsedSeconds = Math.floor((Date.now() - new Date(data.startTime).getTime()) / 1000);
         const remainingCountdown = Math.max(0, 10 - elapsedSeconds);
         
         // Show countdown if time remains, even if already started
-        if (remainingCountdown > 0 && countDown === null && !raceStarted) {
+        if (remainingCountdown > 0 && !raceStarted) {
           // Start countdown immediately for invited user
+          countdownStartedRef.current = true; // Mark as started FIRST to prevent multiple starts
+          
           const startCountdown = (count) => {
             if (count > 0 && isActive) {
               setCountDown(count);
@@ -234,15 +236,14 @@ export default function RacePage() {
           };
           
           startCountdown(remainingCountdown);
-          countdownStartedRef.current = true;
         } else if (remainingCountdown === 0 && !raceStarted && isActive) {
           // Countdown finished, start race immediately
+          countdownStartedRef.current = true;
           setCountDown(null);
           const startTime = Date.now();
           setRaceStartTime(startTime);
           setRaceStarted(true);
           setFinished(false);
-          countdownStartedRef.current = true;
         }
       }
     } catch (err) {
@@ -583,6 +584,7 @@ export default function RacePage() {
 
       console.log('[RACE START CLIENT] Race started successfully, data:', data);
       setRace(data);
+      countdownStartedRef.current = true; // Mark countdown as started to prevent polling from interfering
       
       // Start 10-second countdown with non-blocking approach
       const startCountdown = (count) => {
