@@ -270,7 +270,8 @@ export default function RacePage() {
   // Global keyboard listener for typing during race
   useEffect(() => {
     const handleGlobalKeyDown = (e) => {
-      if (!raceStarted || mode !== 'racing' || !currentSentence) return;
+      // Prevent typing while countdown is active or race hasn't started
+      if (!raceStarted || countDown > 0 || mode !== 'racing' || !currentSentence) return;
 
       let newInput = userInputRef.current;
 
@@ -385,7 +386,7 @@ export default function RacePage() {
         window.removeEventListener('keydown', handleGlobalKeyDown);
       };
     }
-  }, [raceStarted, mode, currentSentence, roomCode, finished]);
+  }, [raceStarted, countDown, mode, currentSentence, roomCode, finished]);
 
   const handleCreateRoom = async () => {
     try {
@@ -718,9 +719,11 @@ export default function RacePage() {
   };
 
   const handleBackHome = () => {
+    // Clear all polling intervals
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
     }
+    // Reset all state to initial values
     setMode('home');
     setRoomCode('');
     setInputCode('');
@@ -734,40 +737,68 @@ export default function RacePage() {
     setCountDown(null);
     setCurrentSentence('');
     setRaceStartTime(null);
+    setShowResultsModal(false);
+    setRace(null);
+    // Force a small delay to ensure state is cleared before navigation
+    userInputRef.current = '';
+    raceStartTimeRef.current = null;
   };
 
   const handleRestartRace = async () => {
     try {
+      // Reset race state while keeping room and participants
+      setUserInput('');
+      setRaceStarted(false);
+      setFinished(false);
+      setResults([]);
+      setShowResultsModal(false);
+      setMode('racing');
+      setCountDown(null); // Clear countdown initially
+      setError('');
+      setRaceStartTime(null);
+      
+      // Reset progress for all participants
+      setParticipants(prev => prev.map(p => ({
+        ...p,
+        progress: 0,
+        accuracy: 100,
+        wpm: 0,
+        rawWpm: 0,
+        finished: false
+      })));
+
       // Start a new race with the same participants
       const res = await fetch(`/api/race/${encodeURIComponent(roomCode)}/start`, {
         method: 'POST'
       });
       const data = await res.json();
       if (res.ok && data.startTime) {
-        // Reset race state while keeping room and participants
-        setUserInput('');
-        setRaceStarted(false);
-        setFinished(false);
-        setResults([]);
-        setMode('waiting');
-        setCountDown(10); // Start countdown
-        setError('');
-        
-        // Reset progress for all participants
-        setParticipants(prev => prev.map(p => ({
-          ...p,
-          progress: 0,
-          accuracy: 100,
-          wpm: 0,
-          rawWpm: 0,
-          finished: false
-        })));
+        setRace(data);
+        // Start 10-second countdown
+        const startCountdown = (count) => {
+          if (count > 0) {
+            setCountDown(count);
+            setTimeout(() => startCountdown(count - 1), 1000);
+          } else {
+            setCountDown(null);
+            // Start race phase after countdown
+            const startTime = Date.now();
+            setRaceStartTime(startTime);
+            setRaceStarted(true);
+            setUserInput('');
+            setFinished(false);
+            setError('');
+          }
+        };
+        startCountdown(10);
       } else {
         setError('Failed to restart race');
+        setMode('waiting');
       }
     } catch (err) {
       console.error('Restart race error:', err);
       setError('Failed to restart race: ' + err.message);
+      setMode('waiting');
     }
   };
 
@@ -1224,6 +1255,8 @@ export default function RacePage() {
                           className={`p-4 rounded-lg border transition-all ${
                             isCurrentUser
                               ? theme === 'dark' ? 'bg-emerald-500/20 border-emerald-500/50' : 'bg-emerald-50 border-emerald-300'
+                              : p.finished
+                              ? theme === 'dark' ? 'bg-green-500/20 border-green-500/50' : 'bg-green-50 border-green-300'
                               : theme === 'dark' ? 'bg-slate-700/50 border-slate-600' : 'bg-slate-100 border-slate-300'
                           }`}
                         >
@@ -1247,15 +1280,17 @@ export default function RacePage() {
                               <p className={`text-sm font-bold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
                                 {Math.round(p.wpm)} WPM
                               </p>
-                              {p.finished && <p className="text-xs text-green-400 font-bold">FINISHED ✓</p>}
+                              {p.finished && <p className="text-xs text-green-400 font-bold">✓ FINISHED</p>}
                             </div>
                           </div>
                           
-                          {/* Progress Bar */}
+                          {/* Progress Bar - different color when finished */}
                           <div className={`w-full h-2 rounded-full overflow-hidden ${theme === 'dark' ? 'bg-slate-600' : 'bg-slate-300'}`}>
                             <div
                               className={`h-full transition-all duration-300 ${
-                                isCurrentUser
+                                p.finished
+                                  ? theme === 'dark' ? 'bg-green-500' : 'bg-green-400'
+                                  : isCurrentUser
                                   ? 'bg-emerald-500'
                                   : theme === 'dark' ? 'bg-blue-500' : 'bg-blue-400'
                               }`}
