@@ -928,11 +928,11 @@ export default function RacePage() {
 
           {/* Theme Toggle */}
           <button
-            onClick={toggleDarkMode}
+            onClick={toggleTheme}
             className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200"
-            title={isDark ? 'Light Mode' : 'Dark Mode'}
+            title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
           >
-            {isDark ? (
+            {theme === 'dark' ? (
               <SunIcon className="w-5 h-5" />
             ) : (
               <MoonIcon className="w-5 h-5" />

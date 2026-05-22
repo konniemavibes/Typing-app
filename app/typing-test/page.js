@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { HomeIcon, ChartBarIcon, LightBulbIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, ChartBarIcon, LightBulbIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
+import { useTheme } from '@/app/context/ThemeContext';
 import TypingTest from '@/app/components/TypingTest';
 
 export default function TypingTestPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -84,7 +86,7 @@ export default function TypingTestPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800' : 'bg-gradient-to-br from-white via-gray-50 to-gray-100'}`}>
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
         <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full shadow-lg backdrop-blur-md bg-opacity-90 dark:bg-opacity-90 px-2 py-3 flex items-center gap-1">
@@ -128,6 +130,19 @@ export default function TypingTestPage() {
           >
             <span>Dashboard</span>
           </Link>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200"
+            title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          >
+            {theme === 'dark' ? (
+              <SunIcon className="w-5 h-5" />
+            ) : (
+              <MoonIcon className="w-5 h-5" />
+            )}
+          </button>
         </div>
       </nav>
 
