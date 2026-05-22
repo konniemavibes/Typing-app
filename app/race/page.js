@@ -43,6 +43,7 @@ export default function RacePage() {
   const [userInput, setUserInput] = useState('');
   const [raceStarted, setRaceStarted] = useState(false);
   const [countDown, setCountDown] = useState(null);
+  const [countdownStartedState, setCountdownStartedState] = useState(false); // Trigger countdown effect
   const [results, setResults] = useState([]);
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [error, setError] = useState('');
@@ -216,6 +217,7 @@ export default function RacePage() {
           const serverStartTime = new Date(data.startTime).getTime();
           raceStartTimeRef.current = serverStartTime;
           countdownStartedRef.current = true;
+          setCountdownStartedState(true); // Trigger countdown effect for late joiners
         }
       }
     } catch (err) {
@@ -226,7 +228,7 @@ export default function RacePage() {
 
   // Countdown effect - updates countdown display based on server time
   useEffect(() => {
-    if (!countdownStartedRef.current || raceStarted) return;
+    if (!countdownStartedState || raceStarted) return;
 
     const updateCountdown = () => {
       if (!raceStartTimeRef.current) return;
@@ -254,7 +256,7 @@ export default function RacePage() {
     updateCountdown();
     
     return () => clearInterval(countdownInterval);
-  }, [raceStarted]);
+  }, [countdownStartedState, raceStarted]);
 
   // When race actually starts (after countdown), prepare for typing
   useEffect(() => {
@@ -604,6 +606,7 @@ export default function RacePage() {
         raceStartTimeRef.current = new Date(data.startTime).getTime();
       }
       countdownStartedRef.current = true; // Mark countdown as started
+      setCountdownStartedState(true); // Trigger countdown effect
       
       // The countdown effect will handle the countdown display automatically
       // No need for manual setTimeout - it will update based on server time
@@ -790,6 +793,7 @@ export default function RacePage() {
     setCurrentUserId(null);
     setResults([]);
     setCountDown(null);
+    setCountdownStartedState(false);
     setCurrentSentence('');
     setRaceStartTime(null);
     setShowResultsModal(false);
@@ -804,6 +808,7 @@ export default function RacePage() {
     try {
       // Reset countdown tracking for new race
       countdownStartedRef.current = false;
+      setCountdownStartedState(false);
       raceStartTimeRef.current = null;
       
       // Reset race state while keeping room and participants
