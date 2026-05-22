@@ -1068,36 +1068,84 @@ export default function RacePage() {
                 </div>
 
                 <div className="grid gap-4">
-                  {participants.map((p) => (
-                    <div
-                      key={p.userId}
-                      className={`flex items-center justify-between p-3 rounded-lg ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-white border border-slate-200'}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        {p.user.image && (
-                          <img
-                            src={p.user.image}
-                            alt={p.user.username}
-                            className="w-8 h-8 rounded-full"
-                          />
-                        )}
-                        <span className={`font-medium ${theme === 'dark' ? 'text-slate-200' : 'text-slate-900'}`}>
-                          {p.user.username}
-                        </span>
-                      </div>
-                      {raceStarted && (
-                        <div className="text-right">
-                          <div className={`font-bold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                            {p.wpm.toFixed(0)} WPM
+                  {(raceStarted 
+                    ? participants.slice().sort((a, b) => (b.progress || 0) - (a.progress || 0))
+                    : participants
+                  ).map((p) => {
+                    const isCurrentUser = p.userId === currentUserId;
+                    const progressPercent = currentSentence && raceStarted ? Math.min(100, (p.progress / currentSentence.length) * 100) : 0;
+
+                    return (
+                      <div
+                        key={p.userId}
+                        className={`p-4 rounded-lg border transition-all ${
+                          raceStarted
+                            ? isCurrentUser
+                              ? theme === 'dark' ? 'bg-emerald-500/20 border-emerald-500/50' : 'bg-emerald-50 border-emerald-300'
+                              : p.finished
+                              ? theme === 'dark' ? 'bg-green-500/20 border-green-500/50' : 'bg-green-50 border-green-300'
+                              : theme === 'dark' ? 'bg-slate-700/50 border-slate-600' : 'bg-slate-100 border-slate-300'
+                            : theme === 'dark' ? 'bg-slate-700/50 border-slate-600' : 'bg-white border-slate-200'
+                        }`}
+                      >
+                        {/* Header with username and WPM */}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {p.user?.image && (
+                              <img
+                                src={p.user.image}
+                                alt={p.user.username}
+                                className="w-8 h-8 rounded-full flex-shrink-0"
+                              />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className={`font-bold text-sm ${theme === 'dark' ? 'text-slate-200' : 'text-slate-900'}`}>
+                                {p.user.username}
+                                {isCurrentUser && ' (You)'}
+                              </p>
+                            </div>
                           </div>
-                          <div className={`text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
-                            {p.accuracy}% • {p.progress}/{currentSentence.length}
-                          </div>
+                          {raceStarted && (
+                            <div className="text-right ml-4 flex-shrink-0">
+                              <p className={`text-sm font-bold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                {Math.round(p.wpm)} WPM
+                              </p>
+                              {p.finished && <p className="text-xs text-green-400 font-bold">✓ FINISHED</p>}
+                            </div>
+                          )}
                         </div>
-                      )}
-                      {p.finished && <CheckCircleIcon className={`w-5 h-5 ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`} />}
-                    </div>
-                  ))}
+
+                        {/* Progress bar and stats only during race */}
+                        {raceStarted && (
+                          <>
+                            {/* Progress Bar */}
+                            <div className={`w-full h-2 rounded-full overflow-hidden mb-2 ${theme === 'dark' ? 'bg-slate-600' : 'bg-slate-300'}`}>
+                              <div
+                                className={`h-full transition-all duration-300 ${
+                                  p.finished
+                                    ? theme === 'dark' ? 'bg-green-500' : 'bg-green-400'
+                                    : isCurrentUser
+                                    ? 'bg-emerald-500'
+                                    : theme === 'dark' ? 'bg-blue-500' : 'bg-blue-400'
+                                }`}
+                                style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                              />
+                            </div>
+
+                            {/* Progress Stats */}
+                            <div className="flex justify-between text-xs">
+                              <span className={theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}>
+                                {p.progress}/{currentSentence.length} • {p.accuracy}%
+                              </span>
+                              <span className={theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}>
+                                {Math.round(progressPercent)}%
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -1291,86 +1339,6 @@ export default function RacePage() {
                 </div>
 
                 {/* No input element needed - using global keyboard listener */}
-
-                {/* Progress Bars for All Participants */}
-                <div className="space-y-4">
-                  <h3 className={`text-lg font-bold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'} mb-4`}>
-                    Race Progress
-                  </h3>
-                  {participants
-                    .slice()
-                    .sort((a, b) => (b.progress || 0) - (a.progress || 0))
-                    .map((p) => {
-                      const progressPercent = currentSentence ? Math.min(100, (p.progress / currentSentence.length) * 100) : 0;
-                      const isCurrentUser = p.userId === currentUserId;
-
-                      // Debug logging
-                      if (isCurrentUser) {
-                        console.log(`Your progress: ${p.progress}/${currentSentence?.length || 'loading'} (${Math.round(progressPercent)}%)`);
-                      }
-
-                      return (
-                        <div
-                          key={p.userId}
-                          className={`p-4 rounded-lg border transition-all ${
-                            isCurrentUser
-                              ? theme === 'dark' ? 'bg-emerald-500/20 border-emerald-500/50' : 'bg-emerald-50 border-emerald-300'
-                              : p.finished
-                              ? theme === 'dark' ? 'bg-green-500/20 border-green-500/50' : 'bg-green-50 border-green-300'
-                              : theme === 'dark' ? 'bg-slate-700/50 border-slate-600' : 'bg-slate-100 border-slate-300'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                              {p.user?.image && (
-                                <img
-                                  src={p.user.image}
-                                  alt={p.user.username}
-                                  className="w-8 h-8 rounded-full flex-shrink-0"
-                                />
-                              )}
-                              <div className="min-w-0 flex-1">
-                                <p className={`font-bold text-sm ${theme === 'dark' ? 'text-slate-200' : 'text-slate-900'}`}>
-                                  {p.user.username}
-                                  {isCurrentUser && ' (You)'}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-right ml-4 flex-shrink-0">
-                              <p className={`text-sm font-bold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                                {Math.round(p.wpm)} WPM
-                              </p>
-                              {p.finished && <p className="text-xs text-green-400 font-bold">✓ FINISHED</p>}
-                            </div>
-                          </div>
-                          
-                          {/* Progress Bar - different color when finished */}
-                          <div className={`w-full h-2 rounded-full overflow-hidden ${theme === 'dark' ? 'bg-slate-600' : 'bg-slate-300'}`}>
-                            <div
-                              className={`h-full transition-all duration-300 ${
-                                p.finished
-                                  ? theme === 'dark' ? 'bg-green-500' : 'bg-green-400'
-                                  : isCurrentUser
-                                  ? 'bg-emerald-500'
-                                  : theme === 'dark' ? 'bg-blue-500' : 'bg-blue-400'
-                              }`}
-                              style={{ width: `${Math.min(progressPercent, 100)}%` }}
-                            />
-                          </div>
-
-                          {/* Progress Text */}
-                          <div className="flex justify-between mt-2 text-xs">
-                            <span className={theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}>
-                              {p.progress}/{currentSentence.length}
-                            </span>
-                            <span className={theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}>
-                              {Math.round(progressPercent)}%
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
               </div>
             )}
           </div>
