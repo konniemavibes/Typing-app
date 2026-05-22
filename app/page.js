@@ -35,6 +35,13 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     
+    // Initialize dark mode from localStorage
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      setIsDark(true);
+    }
+    
     // Check NextAuth session first
     if (session?.user?.email) {
       console.log('[HOME] Authenticated via NextAuth session:', session.user.email);
@@ -62,8 +69,10 @@ export default function Home() {
   }, [session]);
 
   const toggleDarkMode = () => {
+    const newDarkMode = !isDark;
     document.documentElement.classList.toggle('dark');
-    setIsDark(!isDark);
+    localStorage.setItem('darkMode', newDarkMode.toString());
+    setIsDark(newDarkMode);
   };
 
   return (
