@@ -21,7 +21,7 @@ const animationThemes = {};
 const StatPanel = ({ icon, value, label, unit = "", color, className = "", theme = "dark" }) => (
   <div className={`
     p-6 rounded-xl transition-all duration-200 shadow-lg
-    ${theme === 'dark' ? 'bg-slate-800/90 text-slate-200' : 'bg-slate-100 text-slate-900'}
+    ${theme === 'dark' ? 'bg-[#2d2d30]/90 text-[#d4d4d4]' : 'bg-slate-100 text-slate-900'}
     ${className}
   `}>
     <div className="flex items-center gap-3 mb-1">
@@ -30,7 +30,7 @@ const StatPanel = ({ icon, value, label, unit = "", color, className = "", theme
         {value}{unit}
       </span>
     </div>
-    <div className={theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}>
+    <div className={theme === 'dark' ? 'text-[#b0b0b0]' : 'text-slate-600'}>
       {label}
     </div>
   </div>
@@ -40,7 +40,7 @@ const ActionButton = ({ children, onClick, icon, variant = "primary", className 
   const baseStyles = "flex items-center gap-2 rounded-xl font-medium transition-all duration-200";
   const variants = {
     primary: `bg-emerald-500 text-slate-900 font-medium ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-600'}`,
-    secondary: `bg-slate-700 text-slate-200 ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-600'}`
+    secondary: `bg-[#3e3e42] text-[#d4d4d4] ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#4a4a50]'}`
   };
 
   return (
@@ -86,7 +86,7 @@ const AuthLoadingModal = ({ isVisible, provider }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="relative bg-slate-800 rounded-2xl p-8 max-w-md w-full mx-4 border border-slate-700 shadow-2xl">
+      <div className="relative bg-[#2d2d30] rounded-2xl p-8 max-w-md w-full mx-4 border border-[#3e3e42] shadow-2xl">
         <div className="relative z-10 text-center">
           <div className="flex justify-center mb-6">
             <div className="relative">
@@ -96,10 +96,10 @@ const AuthLoadingModal = ({ isVisible, provider }) => {
               </div>
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-slate-200 mb-2">
+          <h2 className="text-2xl font-bold text-[#d4d4d4] mb-2">
             Signing in with {providerInfo.name}
           </h2>
-          <p className="text-slate-400 mb-6">
+          <p className="text-[#b0b0b0] mb-6">
             Please wait while we authenticate you
           </p>
           <div className="flex justify-center gap-2">
@@ -519,24 +519,24 @@ export default function ProfessionalTypingLab() {
 
   if (gameState === 'loading') {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#1e1e1e] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
-          <p className="text-slate-600 dark:text-slate-400 mt-4">Loading...</p>
+          <p className="text-slate-600 dark:text-[#b0b0b0] mt-4">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-gray-50'} transition-colors duration-300`}>
+      <div className={`min-h-screen ${theme === 'dark' ? 'bg-[#1e1e1e]' : 'bg-gray-50'} transition-colors duration-300`}>
       <AuthLoadingModal isVisible={isAuthLoading} provider={authProvider} />
       
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         {/* User Info Bar */}
         {(session || userData) && (
           <div className="flex justify-end items-center gap-4 mb-6">
-            <div className={`flex items-center gap-3 ${theme === 'dark' ? 'bg-slate-800/90' : 'bg-slate-200'} px-4 py-2 rounded-lg`}>
+            <div className={`flex items-center gap-3 ${theme === 'dark' ? 'bg-[#2d2d30]/90' : 'bg-slate-200'} px-4 py-2 rounded-lg`}>
               {(userData?.image || session?.user?.image) && (
                 <img
                   src={userData?.image || session?.user?.image}
@@ -546,7 +546,7 @@ export default function ProfessionalTypingLab() {
                   className="rounded-full"
                 />
               )}
-              <span className={theme === 'dark' ? 'text-slate-200' : 'text-slate-800'}>{userData?.username || session?.user?.name || session?.user?.email || userData?.email}</span>
+              <span className={theme === 'dark' ? 'text-[#d4d4d4]' : 'text-slate-800'}>{userData?.username || session?.user?.name || session?.user?.email || userData?.email}</span>
             </div>
           </div>
         )}
@@ -556,7 +556,7 @@ export default function ProfessionalTypingLab() {
           <div className={`mb-4 ${theme === 'dark' ? 'bg-yellow-900/20 border-yellow-500/30' : 'bg-yellow-50 border-yellow-200'} border rounded px-3 py-2 text-sm`}>
             <div className="flex items-center gap-2">
               <UserPlusIcon className={`w-4 h-4 flex-shrink-0 ${theme === 'dark' ? 'text-yellow-500' : 'text-yellow-600'}`} />
-              <p className={`${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>Sign in to save your scores</p>
+              <p className={`${theme === 'dark' ? 'text-[#d4d4d4]' : 'text-slate-700'}`}>Sign in to save your scores</p>
             </div>
           </div>
         )}
@@ -564,19 +564,19 @@ export default function ProfessionalTypingLab() {
         {gameState === "playing" && (
           <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
             <div className="flex justify-between items-center mb-2">
-              <span className={`text-xs ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>Space bar types spaces</span>
+              <span className={`text-xs ${theme === 'dark' ? 'text-[#b0b0b0]' : 'text-slate-500'}`}>Space bar types spaces</span>
               <button
                 onClick={startGame}
-                className={`flex items-center gap-2 px-4 py-2 ${theme === 'dark' ? 'bg-slate-700 hover:bg-slate-600 text-slate-200' : 'bg-slate-300 hover:bg-slate-400 text-slate-800'} rounded-lg text-sm transition-all`}
+                className={`flex items-center gap-2 px-4 py-2 ${theme === 'dark' ? 'bg-[#3e3e42] hover:bg-[#4a4a50] text-[#d4d4d4]' : 'bg-slate-300 hover:bg-slate-400 text-slate-800'} rounded-lg text-sm transition-all`}
                 title="Restart (Ctrl+Space)"
               >
                 <ArrowPathIcon className="w-4 h-4" />
                 Restart
-                <span className={`ml-1 px-2 py-0.5 ${theme === 'dark' ? 'bg-slate-600' : 'bg-slate-400'} rounded text-xs`}>Ctrl+Space</span>
+                <span className={`ml-1 px-2 py-0.5 ${theme === 'dark' ? 'bg-[#4a4a50]' : 'bg-slate-400'} rounded text-xs`}>Ctrl+Space</span>
               </button>
             </div>
 
-            <div className={`w-full ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-300/50'} rounded-full h-2.5 mb-4`}>
+            <div className={`w-full ${theme === 'dark' ? 'bg-[#3e3e42]' : 'bg-slate-300/50'} rounded-full h-2.5 mb-4`}>
               <div 
                 className="bg-emerald-500 h-2.5 rounded-full transition-all duration-300 ease-out"
                 style={{ width: `${progressPercentage}%` }}
@@ -585,7 +585,7 @@ export default function ProfessionalTypingLab() {
 
             <div className={`
               relative text-2xl md:text-3xl lg:text-4xl leading-relaxed
-              p-6 md:p-8 lg:p-10 ${theme === 'dark' ? 'bg-slate-800/80 border-slate-700/30' : 'bg-white border-slate-300'} backdrop-blur-lg rounded-xl
+              p-6 md:p-8 lg:p-10 ${theme === 'dark' ? 'bg-[#2d2d30]/80 border-[#3e3e42]/30' : 'bg-white border-slate-300'} backdrop-blur-lg rounded-xl
               transition-all duration-300 border
               shadow-lg ${stats.time <= 0 ? 'opacity-75' : ''}
               ${isMobile ? "h-[40vh] overflow-y-auto mt-14" : "min-h-[35vh]"}
@@ -616,7 +616,7 @@ export default function ProfessionalTypingLab() {
                             ? inputChar === ' '
                               ? 'bg-emerald-500/30 border border-emerald-400 rounded'
                               : 'bg-red-500/30 border border-red-400 rounded'
-                            : 'bg-slate-700/40 rounded'
+                            : 'bg-[#3e3e42]/40 rounded'
                         }`} title="Space"></span>
                       ) : (
                         <span
@@ -625,9 +625,9 @@ export default function ProfessionalTypingLab() {
                             ${isActive ? "text-emerald-500 border-b-2 border-emerald-500" : ""}
                             ${inputChar !== undefined
                               ? inputChar === char
-                                ? theme === 'dark' ? "text-slate-300" : "text-slate-700"
+                                ? theme === 'dark' ? "text-[#d4d4d4]" : "text-slate-700"
                                 : "text-rose-500"
-                              : theme === 'dark' ? "text-slate-500" : "text-slate-400"
+                              : theme === 'dark' ? "text-[#b0b0b0]" : "text-slate-400"
                             }
                             ${isActive ? "animate-pulse" : ""}
                             transition-colors duration-150
@@ -645,7 +645,7 @@ export default function ProfessionalTypingLab() {
               {!isFocused && (
                 <div className="absolute inset-0 flex items-center justify-center rounded-lg">
                   <div className="text-center">
-                    <p className={`text-lg md:text-xl font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <p className={`text-lg md:text-xl font-medium ${theme === 'dark' ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                     🖱️  Click here or press any key to focus
                     </p>
                   </div>
@@ -697,7 +697,7 @@ export default function ProfessionalTypingLab() {
             </div>
 
             {isMobile && (
-              <div className={`fixed bottom-0 left-0 right-0 ${theme === 'dark' ? 'bg-slate-800/95' : 'bg-white/95'} backdrop-blur-lg border-t ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} p-3 pb-4`}>
+              <div className={`fixed bottom-0 left-0 right-0 ${theme === 'dark' ? 'bg-[#2d2d30]/95' : 'bg-white/95'} backdrop-blur-lg border-t ${theme === 'dark' ? 'border-[#3e3e42]' : 'border-slate-200'} p-3 pb-4`}>
                 <MobileKeyboard
                   onKeyPress={handleVirtualInput}
                   theme={theme}
