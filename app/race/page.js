@@ -235,7 +235,7 @@ export default function RacePage() {
       
       const serverStartTime = raceStartTimeRef.current;
       const elapsedSeconds = Math.floor((Date.now() - serverStartTime) / 1000);
-      const remainingCountdown = Math.max(0, 10 - elapsedSeconds);
+      const remainingCountdown = Math.max(0, 5 - elapsedSeconds);
       
       if (remainingCountdown > 0) {
         setCountDown(remainingCountdown);
@@ -839,23 +839,13 @@ export default function RacePage() {
       const data = await res.json();
       if (res.ok && data.startTime) {
         setRace(data);
-        // Start 10-second countdown
-        const startCountdown = (count) => {
-          if (count > 0) {
-            setCountDown(count);
-            setTimeout(() => startCountdown(count - 1), 1000);
-          } else {
-            setCountDown(null);
-            // Start race phase after countdown
-            const startTime = Date.now();
-            setRaceStartTime(startTime);
-            setRaceStarted(true);
-            setUserInput('');
-            setFinished(false);
-            setError('');
-          }
-        };
-        startCountdown(10);
+        // Store server's startTime for countdown calculation
+        if (data.startTime) {
+          raceStartTimeRef.current = new Date(data.startTime).getTime();
+        }
+        countdownStartedRef.current = true;
+        setCountdownStartedState(true); // Trigger countdown effect with server time
+        // The countdown effect will handle the 5-second countdown automatically
       } else {
         setError('Failed to restart race');
         setMode('waiting');
