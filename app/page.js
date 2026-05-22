@@ -22,25 +22,19 @@ import {
   AcademicCapIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
+import { useTheme } from './context/ThemeContext';
 import TypingTest from './components/TypingTest';
 import Silk from '../src/component/Silk';
 
 export default function Home() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [isDark, setIsDark] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    
-    // Initialize dark mode from localStorage
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      setIsDark(true);
-    }
     
     // Check NextAuth session first
     if (session?.user?.email) {
@@ -68,22 +62,14 @@ export default function Home() {
     setIsAuthenticated(false);
   }, [session]);
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDark;
-    document.documentElement.classList.toggle('dark');
-    localStorage.setItem('darkMode', newDarkMode.toString());
-    setIsDark(newDarkMode);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-[#1e1e1e] dark:via-[#252526] dark:to-[#2d2d30]">
-      {/* Navigation */}
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-[#1e1e1e] via-[#252526] to-[#2d2d30]' : 'bg-gradient-to-br from-white via-gray-50 to-gray-100'}`}>
       <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
-        <div className="bg-white dark:bg-[#2d2d30] border border-gray-200 dark:border-[#3e3e42] rounded-full shadow-lg backdrop-blur-md bg-opacity-90 dark:bg-opacity-90 px-2 py-3 flex items-center gap-1">
+        <div className={`${theme === 'dark' ? 'bg-[#2d2d30]' : 'bg-white'} border ${theme === 'dark' ? 'border-[#3e3e42]' : 'border-gray-200'} rounded-full shadow-lg backdrop-blur-md ${theme === 'dark' ? 'bg-opacity-90' : 'bg-opacity-90'} px-2 py-3 flex items-center gap-1`}>
           {/* Home */}
           <Link
             href="/"
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${theme === 'dark' ? 'text-[#d4d4d4] hover:bg-[#3e3e42]' : 'text-gray-700 hover:bg-gray-100'} hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200`}
             title="Home"
           >
             <HomeIcon className="w-5 h-5" />
@@ -92,19 +78,17 @@ export default function Home() {
 
           {/* Search */}
           <button
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${theme === 'dark' ? 'text-[#d4d4d4] hover:bg-[#3e3e42]' : 'text-gray-700 hover:bg-gray-100'} hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200`}
             title="Learn to Type"
           >
-            <LightBulbIcon
-            href="/auth/login"
-             className="w-5 h-5" />
+            <LightBulbIcon className="w-5 h-5" />
             <span>Learn</span>
           </button>
 
           {/* Leaderboard */}
           <Link
             href="/pro"
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${theme === 'dark' ? 'text-[#d4d4d4] hover:bg-[#3e3e42]' : 'text-gray-700 hover:bg-gray-100'} hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200`}
             title="Leaderboard"
           >
             <ChartBarIcon className="w-5 h-5" />
@@ -113,7 +97,7 @@ export default function Home() {
 
           {/* Notifications */}
           <button
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 relative"
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${theme === 'dark' ? 'text-[#d4d4d4] hover:bg-[#3e3e42]' : 'text-gray-700 hover:bg-gray-100'} hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 relative`}
             title="Notifications"
           >
             <BellIcon className="w-5 h-5" />
@@ -122,14 +106,14 @@ export default function Home() {
           </button>
 
           {/* Profile / Auth */}
-          <div className="h-8 w-px bg-gray-300 dark:bg-[#3e3e42] mx-1"></div>
+          <div className={`h-8 w-px ${theme === 'dark' ? 'bg-[#3e3e42]' : 'bg-gray-300'} mx-1`}></div>
 
           {/* Auth Buttons */}
           {mounted && !isAuthenticated ? (
             <>
               <Link
                 href="/auth/login"
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${theme === 'dark' ? 'text-[#d4d4d4] hover:bg-[#3e3e42]' : 'text-gray-700 hover:bg-gray-100'} hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200`}
               >
                 <UserIcon className="w-5 h-5" />
                 <span>Sign In</span>
@@ -156,11 +140,11 @@ export default function Home() {
 
           {/* Theme Toggle */}
           <button
-            onClick={toggleDarkMode}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] transition-all duration-200"
-            title={isDark ? 'Light Mode' : 'Dark Mode'}
+            onClick={toggleTheme}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${theme === 'dark' ? 'text-[#d4d4d4] hover:bg-[#3e3e42]' : 'text-gray-700 hover:bg-gray-100'} transition-all duration-200`}
+            title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
           >
-            {isDark ? (
+            {theme === 'dark' ? (
               <SunIcon className="w-5 h-5" />
             ) : (
               <MoonIcon className="w-5 h-5" />
@@ -170,7 +154,7 @@ export default function Home() {
       </nav>
 
       {/* Typing Test Section - Below Navbar */}
-      <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-gray-50 to-transparent dark:from-[#1e1e1e] dark:via-[#252526] dark:to-[#2d2d30]/50">
+      <section className={`pt-24 pb-16 px-4 sm:px-6 lg:px-8 ${theme === 'dark' ? 'bg-gradient-to-b from-[#1e1e1e] via-[#252526] to-[#2d2d30]/50' : 'bg-gradient-to-b from-white via-gray-50 to-transparent'}`}>
         <div className="max-w-6xl mx-auto">
           <TypingTest />
         </div>
@@ -189,7 +173,7 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto">
-          <div className="bg-white/95 dark:bg-[#2d2d30]/95 backdrop-blur-sm rounded-3xl p-12 sm:p-16 shadow-2xl border border-white/20 dark:border-[#3e3e42]/50 animate-fade-in">
+          <div className={`${theme === 'dark' ? 'bg-[#2d2d30]/95' : 'bg-white/95'} backdrop-blur-sm rounded-3xl p-12 sm:p-16 shadow-2xl ${theme === 'dark' ? 'border-[#3e3e42]/50' : 'border-white/20'} border animate-fade-in`}>
             <div className="text-center">
               <div className="inline-block px-4 py-2 bg-emerald-100 dark:bg-emerald-500/20 rounded-full mb-6">
                 <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
@@ -201,7 +185,7 @@ export default function Home() {
                   Master Typing
                 </span>
               </h1>
-              <p className="text-xl text-gray-700 dark:text-[#d4d4d4] max-w-3xl mx-auto mb-8">
+              <p className={`text-xl ${theme === 'dark' ? 'text-[#d4d4d4]' : 'text-gray-700'} max-w-3xl mx-auto mb-8`}>
                 Practice typing with realistic challenges, compete with friends in real-time races, and watch your skills improve. Join thousands of typists pushing their limits.
               </p>
               <div className="flex gap-4 justify-center flex-wrap">
@@ -225,7 +209,7 @@ export default function Home() {
       </section>
 
       {/* Enhanced Features Section */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#1e1e1e]/50 overflow-hidden">
+      <section className={`relative py-24 px-4 sm:px-6 lg:px-8 ${theme === 'dark' ? 'bg-[#1e1e1e]/50' : 'bg-white'} overflow-hidden`}>
         <div className="absolute inset-0 z-0 opacity-30">
           <Silk
             speed={5}
@@ -238,27 +222,27 @@ export default function Home() {
 
         <div className="relative z-10 max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400 bg-clip-text text-transparent mb-4">
+            <h2 className={`text-4xl sm:text-5xl font-bold bg-gradient-to-r ${theme === 'dark' ? 'from-emerald-400 to-blue-400' : 'from-emerald-600 to-blue-600'} bg-clip-text text-transparent mb-4`}>
               Powerful Features for Every User
             </h2>
-            <p className="text-xl text-gray-600 dark:text-[#b0b0b0]">
+            <p className={`text-xl ${theme === 'dark' ? 'text-[#b0b0b0]' : 'text-gray-600'}`}>
               Everything you need to master typing and track your progress
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Racing Feature */}
-            <div className="p-8 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 rounded-2xl border-2 border-orange-200 dark:border-orange-700 hover:shadow-lg transition-shadow">
+            <div className={`p-8 bg-gradient-to-br from-orange-50 to-red-50 ${theme === 'dark' ? 'dark:from-orange-950/30 dark:to-red-950/30' : ''} rounded-2xl border-2 ${theme === 'dark' ? 'border-orange-700' : 'border-orange-200'} hover:shadow-lg transition-shadow`}>
               <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center mb-4">
                 <RocketLaunchIcon className="w-6 h-6 text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent mb-2">
+              <h3 className={`text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 ${theme === 'dark' ? 'dark:from-orange-400 dark:to-red-400' : ''} bg-clip-text text-transparent mb-2`}>
                 Real-Time Racing
               </h3>
               <p className="text-gray-700 dark:text-[#d4d4d4] mb-4">
                 Challenge friends and compete in live multiplayer races. Watch your progress in real-time as you type against others worldwide.
               </p>
-              <Link href="/race" className="text-orange-600 dark:text-orange-400 font-semibold hover:underline flex items-center gap-2">
+              <Link href="/race" className={`${theme === 'dark' ? 'text-orange-400' : 'text-orange-600'} font-semibold hover:underline flex items-center gap-2`}>
                 Start Racing <ArrowRightIcon className="w-4 h-4" />
               </Link>
             </div>
