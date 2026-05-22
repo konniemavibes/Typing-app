@@ -208,42 +208,14 @@ export default function RacePage() {
         });
       });
       
-      // If race is active and has a startTime, sync countdown for all players (invited user needs this)
-      if (data.status === 'active' && data.startTime && !countdownStartedRef.current) {
-        // Calculate remaining countdown based on server's startTime
-        const elapsedSeconds = Math.floor((Date.now() - new Date(data.startTime).getTime()) / 1000);
-        const remainingCountdown = Math.max(0, 10 - elapsedSeconds);
-        
-        // Show countdown if time remains, even if already started
-        if (remainingCountdown > 0 && !raceStarted) {
-          // Start countdown immediately for invited user
-          countdownStartedRef.current = true; // Mark as started FIRST to prevent multiple starts
-          
-          const startCountdown = (count) => {
-            if (count > 0 && isActive) {
-              setCountDown(count);
-              setTimeout(() => startCountdown(count - 1), 1000);
-            } else if (count === 0 && isActive) {
-              setCountDown(null);
-              // Race phase starts
-              if (!raceStarted) {
-                const startTime = Date.now();
-                setRaceStartTime(startTime);
-                setRaceStarted(true);
-                setFinished(false);
-              }
-            }
-          };
-          
-          startCountdown(remainingCountdown);
-        } else if (remainingCountdown === 0 && !raceStarted && isActive) {
-          // Countdown finished, start race immediately
+      // If race is active and has a startTime, update countdown based on server time
+      if (data.status === 'active' && data.startTime) {
+        // Store the server startTime for countdown calculation
+        if (!raceStartTimeRef.current) {
+          // First time we see the race start, store the server's startTime
+          const serverStartTime = new Date(data.startTime).getTime();
+          raceStartTimeRef.current = serverStartTime;
           countdownStartedRef.current = true;
-          setCountDown(null);
-          const startTime = Date.now();
-          setRaceStartTime(startTime);
-          setRaceStarted(true);
-          setFinished(false);
         }
       }
     } catch (err) {
@@ -251,6 +223,48 @@ export default function RacePage() {
       // Polling will retry on next interval
     }
   };
+
+  // Countdown effect - updates countdown display based on server time
+  useEffect(() => {
+    if (!countdownStartedRef.current || raceStarted) return;
+
+    const updateCountdown = () => {
+      if (!raceStartTimeRef.current) return;
+      
+      const serverStartTime = raceStartTimeRef.current;
+      const elapsedSeconds = Math.floor((Date.now() - serverStartTime) / 1000);
+      const remainingCountdown = Math.max(0, 10 - elapsedSeconds);
+      
+      if (remainingCountdown > 0) {
+        setCountDown(remainingCountdown);
+      } else {
+        // Countdown finished
+        setCountDown(null);
+        const startTime = Date.now();
+        setRaceStartTime(startTime);
+        setRaceStarted(true);
+        setFinished(false);
+      }
+    };
+
+    // Update countdown every 100ms for smooth updates
+    const countdownInterval = setInterval(updateCountdown, 100);
+    
+    // Also update immediately
+    updateCountdown();
+    
+    return () => clearInterval(countdownInterval);
+  }, [raceStarted]);
+
+  // When race actually starts (after countdown), prepare for typing
+  useEffect(() => {
+    if (raceStarted && !countDown) {
+      setUserInput('');
+      setFinished(false);
+      setError('');
+      inputRef.current?.focus();
+    }
+  }, [raceStarted]);
 
   useEffect(() => {
     if (!roomCode || mode !== 'racing') return;
@@ -584,32 +598,15 @@ export default function RacePage() {
 
       console.log('[RACE START CLIENT] Race started successfully, data:', data);
       setRace(data);
-      countdownStartedRef.current = true; // Mark countdown as started to prevent polling from interfering
       
-      // Start 10-second countdown with non-blocking approach
-      const startCountdown = (count) => {
-        if (count > 0) {
-          setCountDown(count);
-          setTimeout(() => startCountdown(count - 1), 1000);
-        } else {
-          setCountDown(null);
-          startRacePhase();
-        }
-      };
-
-      // Start race phase after countdown
-      const startRacePhase = () => {
-        const startTime = Date.now();
-        setRaceStartTime(startTime);
-        setRaceStarted(true);
-        setUserInput('');
-        setFinished(false);
-        setError('');
-        setIsStarting(false);
-        inputRef.current?.focus();
-      };
-
-      startCountdown(10);
+      // Store server's startTime for countdown calculation
+      if (data.startTime) {
+        raceStartTimeRef.current = new Date(data.startTime).getTime();
+      }
+      countdownStartedRef.current = true; // Mark countdown as started
+      
+      // The countdown effect will handle the countdown display automatically
+      // No need for manual setTimeout - it will update based on server time
     } catch (err) {
       console.error('Start race error:', err);
       setError('Failed to start race: ' + err.message);
@@ -807,6 +804,7 @@ export default function RacePage() {
     try {
       // Reset countdown tracking for new race
       countdownStartedRef.current = false;
+      raceStartTimeRef.current = null;
       
       // Reset race state while keeping room and participants
       setUserInput('');
