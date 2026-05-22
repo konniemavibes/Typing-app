@@ -27,7 +27,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import { sentences } from '../constants/sentences';
 
 export default function RacePage() {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -54,23 +54,8 @@ export default function RacePage() {
   const [isJoining, setIsJoining] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
-
-  // Initialize dark mode based on theme context
-  useEffect(() => {
-    setIsDark(theme === 'dark');
-  }, [theme]);
-
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDark;
-    setIsDark(newDarkMode);
-    document.documentElement.classList.toggle('dark');
-    // Also update localStorage for persistence
-    localStorage.setItem('theme', newDarkMode ? 'dark' : 'light');
-  };
 
   // Handle user menu click outside
   useEffect(() => {
@@ -411,18 +396,30 @@ export default function RacePage() {
       
       // Get user email from session or localStorage for fallback auth
       let userEmail = session?.user?.email;
+      console.log('[CREATE ROOM] Session email:', userEmail);
+      
       if (!userEmail) {
         const authUser = localStorage.getItem('authUser');
         if (authUser) {
           try {
             const userData = JSON.parse(authUser);
             userEmail = userData.email;
+            console.log('[CREATE ROOM] localStorage email:', userEmail);
           } catch (error) {
-            console.log('Error parsing localStorage:', error);
+            console.log('[CREATE ROOM] Error parsing localStorage:', error);
           }
         }
       }
       
+      // Check if we have an email
+      if (!userEmail) {
+        console.error('[CREATE ROOM] No email found in session or localStorage');
+        setError('Unable to create room - not authenticated properly');
+        setIsCreating(false);
+        return;
+      }
+      
+      console.log('[CREATE ROOM] Creating room with email:', userEmail);
       const res = await fetch('/api/race', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -430,12 +427,16 @@ export default function RacePage() {
       });
       const data = await res.json();
       
+      console.log('[CREATE ROOM] Response:', { status: res.status, data });
+      
       if (!res.ok) {
+        console.error('[CREATE ROOM] Failed:', data);
         setError(data.error || 'Failed to create room');
         setIsCreating(false);
         return;
       }
 
+      console.log('[CREATE ROOM] Room created successfully:', data.roomCode);
       setRoomCode(data.roomCode);
       setRace(data);
       setParticipants(data.participants);
@@ -444,7 +445,8 @@ export default function RacePage() {
       setMode('racing');
       setIsCreating(false);
     } catch (err) {
-      setError('Failed to create room');
+      console.error('[CREATE ROOM] Error:', err);
+      setError('Failed to create room: ' + err.message);
       setIsCreating(false);
     }
   };

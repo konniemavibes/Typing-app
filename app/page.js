@@ -67,14 +67,14 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-[#1e1e1e] dark:via-[#252526] dark:to-[#2d2d30]">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
-        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full shadow-lg backdrop-blur-md bg-opacity-90 dark:bg-opacity-90 px-2 py-3 flex items-center gap-1">
+        <div className="bg-white dark:bg-[#2d2d30] border border-gray-200 dark:border-[#3e3e42] rounded-full shadow-lg backdrop-blur-md bg-opacity-90 dark:bg-opacity-90 px-2 py-3 flex items-center gap-1">
           {/* Home */}
           <Link
             href="/"
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
             title="Home"
           >
             <HomeIcon className="w-5 h-5" />
@@ -83,7 +83,7 @@ export default function Home() {
 
           {/* Search */}
           <button
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
             title="Learn to Type"
           >
             <LightBulbIcon
@@ -95,7 +95,7 @@ export default function Home() {
           {/* Leaderboard */}
           <Link
             href="/pro"
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
             title="Leaderboard"
           >
             <ChartBarIcon className="w-5 h-5" />
@@ -104,7 +104,7 @@ export default function Home() {
 
           {/* Notifications */}
           <button
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 relative"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 relative"
             title="Notifications"
           >
             <BellIcon className="w-5 h-5" />
@@ -113,14 +113,14 @@ export default function Home() {
           </button>
 
           {/* Profile / Auth */}
-          <div className="h-8 w-px bg-gray-300 dark:bg-slate-600 mx-1"></div>
+          <div className="h-8 w-px bg-gray-300 dark:bg-[#3e3e42] mx-1"></div>
 
           {/* Auth Buttons */}
           {mounted && !isAuthenticated ? (
             <>
               <Link
                 href="/auth/login"
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200"
               >
                 <UserIcon className="w-5 h-5" />
                 <span>Sign In</span>
@@ -148,7 +148,7 @@ export default function Home() {
           {/* Theme Toggle */}
           <button
             onClick={toggleDarkMode}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#3e3e42] transition-all duration-200"
             title={isDark ? 'Light Mode' : 'Dark Mode'}
           >
             {isDark ? (
@@ -161,7 +161,7 @@ export default function Home() {
       </nav>
 
       {/* Typing Test Section - Below Navbar */}
-      <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-gray-50 to-transparent dark:from-slate-950 dark:via-slate-900 dark:to-slate-900/50">
+      <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-gray-50 to-transparent dark:from-[#1e1e1e] dark:via-[#252526] dark:to-[#2d2d30]/50">
         <div className="max-w-6xl mx-auto">
           <TypingTest />
         </div>
@@ -180,7 +180,7 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto">
-          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm rounded-3xl p-12 sm:p-16 shadow-2xl border border-white/20 dark:border-slate-800/50 animate-fade-in">
+          <div className="bg-white/95 dark:bg-[#2d2d30]/95 backdrop-blur-sm rounded-3xl p-12 sm:p-16 shadow-2xl border border-white/20 dark:border-[#3e3e42]/50 animate-fade-in">
             <div className="text-center">
               <div className="inline-block px-4 py-2 bg-emerald-100 dark:bg-emerald-500/20 rounded-full mb-6">
                 <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
@@ -192,7 +192,7 @@ export default function Home() {
                   Master Typing
                 </span>
               </h1>
-              <p className="text-xl text-gray-700 dark:text-slate-300 max-w-3xl mx-auto mb-8">
+              <p className="text-xl text-gray-700 dark:text-[#d4d4d4] max-w-3xl mx-auto mb-8">
                 Practice typing with realistic challenges, compete with friends in real-time races, and watch your skills improve. Join thousands of typists pushing their limits.
               </p>
               <div className="flex gap-4 justify-center flex-wrap">
@@ -216,7 +216,7 @@ export default function Home() {
       </section>
 
       {/* Enhanced Features Section */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900/50 overflow-hidden">
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#1e1e1e]/50 overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-30">
           <Silk
             speed={5}
@@ -232,7 +232,7 @@ export default function Home() {
             <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400 bg-clip-text text-transparent mb-4">
               Powerful Features for Every User
             </h2>
-            <p className="text-xl text-gray-600 dark:text-slate-400">
+            <p className="text-xl text-gray-600 dark:text-[#b0b0b0]">
               Everything you need to master typing and track your progress
             </p>
           </div>
@@ -246,7 +246,7 @@ export default function Home() {
               <h3 className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent mb-2">
                 Real-Time Racing
               </h3>
-              <p className="text-gray-700 dark:text-slate-300 mb-4">
+              <p className="text-gray-700 dark:text-[#d4d4d4] mb-4">
                 Challenge friends and compete in live multiplayer races. Watch your progress in real-time as you type against others worldwide.
               </p>
               <Link href="/race" className="text-orange-600 dark:text-orange-400 font-semibold hover:underline flex items-center gap-2">
@@ -262,7 +262,7 @@ export default function Home() {
               <h3 className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent mb-2">
                 Typing Tests & Lessons
               </h3>
-              <p className="text-gray-700 dark:text-slate-300 mb-4">
+              <p className="text-gray-700 dark:text-[#d4d4d4] mb-4">
                 Master typing fundamentals with our interactive lessons. Get instant feedback on your speed, accuracy, and typing technique.
               </p>
               <Link href="/typing-test" className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline flex items-center gap-2">
@@ -278,7 +278,7 @@ export default function Home() {
               <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent mb-2">
                 Teacher Dashboard
               </h3>
-              <p className="text-gray-700 dark:text-slate-300 mb-4">
+              <p className="text-gray-700 dark:text-[#d4d4d4] mb-4">
                 Monitor your entire class in real-time. See active students, track minutes typed, activity status, and student progress all in one dashboard.
               </p>
               <Link href="/teacher-dashboard" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-2">
@@ -294,7 +294,7 @@ export default function Home() {
               <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
                 Analytics & Progress
               </h3>
-              <p className="text-gray-700 dark:text-slate-300 mb-4">
+              <p className="text-gray-700 dark:text-[#d4d4d4] mb-4">
                 Track every achievement with detailed statistics. Monitor WPM, accuracy, personal records, and improvements over time with beautiful charts.
               </p>
               <Link href="/dashboard" className="text-purple-600 dark:text-purple-400 font-semibold hover:underline flex items-center gap-2">
@@ -348,18 +348,18 @@ export default function Home() {
                 Explore Teacher Features <ArrowRightIcon className="w-5 h-5" />
               </Link>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-xl border border-blue-200 dark:border-blue-700">
+            <div className="bg-white dark:bg-[#2d2d30] rounded-2xl p-8 shadow-xl border border-blue-200 dark:border-blue-700">
               <div className="space-y-4">
                 <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg">
-                  <p className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Active Students: 24/30</p>
+                  <p className="font-semibold text-blue-900 dark:text-blue-200 mb-2">Active Students: 24/30</p>
                   <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2"><div className="bg-blue-600 h-2 rounded-full" style={{width: '80%'}}></div></div>
                 </div>
                 <div className="bg-emerald-100 dark:bg-emerald-900/30 p-4 rounded-lg">
-                  <p className="font-semibold text-emerald-900 dark:text-emerald-100">Average WPM: 62</p>
+                  <p className="font-semibold text-emerald-900 dark:text-emerald-200">Average WPM: 62</p>
                   <p className="text-sm text-emerald-700 dark:text-emerald-300">Class progress: ↑ 8% this week</p>
                 </div>
                 <div className="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg">
-                  <p className="font-semibold text-purple-900 dark:text-purple-100">Total Class Minutes: 1,240</p>
+                  <p className="font-semibold text-purple-900 dark:text-purple-200">Total Class Minutes: 1,240</p>
                   <p className="text-sm text-purple-700 dark:text-purple-300">Average: 41.3 minutes per student</p>
                 </div>
               </div>
@@ -369,7 +369,7 @@ export default function Home() {
       </section>
 
       {/* Learn to Type Showcase */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900/50 overflow-hidden">
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#1e1e1e]/50 overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-30">
           <Silk
             speed={5}
@@ -382,31 +382,31 @@ export default function Home() {
 
         <div className="relative z-10 max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="order-2 md:order-1 bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-xl border border-emerald-200 dark:border-emerald-700">
+            <div className="order-2 md:order-1 bg-white dark:bg-[#2d2d30] rounded-2xl p-8 shadow-xl border border-emerald-200 dark:border-emerald-700">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
                     <AcademicCapIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <span className="font-semibold text-emerald-900 dark:text-emerald-100">Beginner Fundamentals</span>
+                  <span className="font-semibold text-emerald-900 dark:text-emerald-200">Beginner Fundamentals</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
                     <AcademicCapIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <span className="font-semibold text-emerald-900 dark:text-emerald-100">Touch Typing Lessons</span>
+                  <span className="font-semibold text-emerald-900 dark:text-emerald-200">Touch Typing Lessons</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
                     <AcademicCapIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <span className="font-semibold text-emerald-900 dark:text-emerald-100">Speed & Accuracy Training</span>
+                  <span className="font-semibold text-emerald-900 dark:text-emerald-200">Speed & Accuracy Training</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
                     <AcademicCapIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <span className="font-semibold text-emerald-900 dark:text-emerald-100">Expert Tips & Techniques</span>
+                  <span className="font-semibold text-emerald-900 dark:text-emerald-200">Expert Tips & Techniques</span>
                 </div>
               </div>
             </div>
@@ -415,25 +415,25 @@ export default function Home() {
                 Learn to Type<br />
                 <span className="bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">the Easy Way</span>
               </h2>
-              <p className="text-lg text-gray-700 dark:text-slate-300 mb-6">
+              <p className="text-lg text-gray-700 dark:text-[#d4d4d4] mb-6">
                 Our comprehensive lessons guide you from complete beginner to typing expert. Learn proper finger placement, build muscle memory, and develop consistent technique.
               </p>
               <ul className="space-y-3 mb-8">
                 <li className="flex gap-3 items-center">
                   <CheckCircleIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                  <span className="text-gray-700 dark:text-slate-300">Interactive step-by-step tutorials</span>
+                  <span className="text-gray-700 dark:text-[#d4d4d4]">Interactive step-by-step tutorials</span>
                 </li>
                 <li className="flex gap-3 items-center">
                   <CheckCircleIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                  <span className="text-gray-700 dark:text-slate-300">Real-time feedback on mistakes</span>
+                  <span className="text-gray-700 dark:text-[#d4d4d4]">Real-time feedback on mistakes</span>
                 </li>
                 <li className="flex gap-3 items-center">
                   <CheckCircleIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                  <span className="text-gray-700 dark:text-slate-300">Progressive difficulty levels</span>
+                  <span className="text-gray-700 dark:text-[#d4d4d4]">Progressive difficulty levels</span>
                 </li>
                 <li className="flex gap-3 items-center">
                   <CheckCircleIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                  <span className="text-gray-700 dark:text-slate-300">Certificate upon completion</span>
+                  <span className="text-gray-700 dark:text-[#d4d4d4]">Certificate upon completion</span>
                 </li>
               </ul>
               <Link href="/Study" className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors">
@@ -482,8 +482,8 @@ export default function Home() {
 
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-slate-700 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto text-center text-gray-600 dark:text-slate-400 text-sm">
+      <footer className="border-t border-gray-200 dark:border-[#3e3e42] py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto text-center text-gray-600 dark:text-[#b0b0b0] text-sm">
           <p>&copy; 2026 TypingAuth. All rights reserved.</p>
         </div>
       </footer>
