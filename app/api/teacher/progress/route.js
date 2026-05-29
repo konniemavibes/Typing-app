@@ -35,10 +35,26 @@ export async function GET(request) {
       );
     }
 
+    // Map class IDs to database class names
+    const classNameMap = {
+      'ey-jupiter': 'EY jupiter',
+      'ey-venus': 'EY venus',
+      'ey-mercury': 'EY mercury',
+      'ey-neptune': 'EY neptune',
+    };
+
+    const className = classNameMap[classId];
+    if (!className) {
+      return Response.json(
+        { error: 'Invalid class ID' },
+        { status: 400 }
+      );
+    }
+
     // Verify teacher owns this class
     const classData = await prisma.class.findFirst({
       where: {
-        id: classId,
+        name: className,
         teacherId: teacher.id
       },
       include: {
@@ -61,7 +77,7 @@ export async function GET(request) {
     const allMinutes = await prisma.typingMinutes.findMany({
       where: {
         user: {
-          classId: classId
+          classId: classData.id
         },
         date: {
           gte: dateFrom

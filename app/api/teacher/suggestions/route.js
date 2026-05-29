@@ -50,10 +50,26 @@ export async function POST(request) {
       );
     }
 
+    // Map class IDs to database class names
+    const classNameMap = {
+      'ey-jupiter': 'EY jupiter',
+      'ey-venus': 'EY venus',
+      'ey-mercury': 'EY mercury',
+      'ey-neptune': 'EY neptune',
+    };
+
+    const className = classNameMap[classId];
+    if (!className) {
+      return Response.json(
+        { error: 'Invalid class ID' },
+        { status: 400 }
+      );
+    }
+
     // Verify teacher owns this class
     const classData = await prisma.class.findFirst({
       where: {
-        id: classId,
+        name: className,
         teacherId: teacher.id
       },
       include: {
@@ -144,9 +160,25 @@ export async function GET(request) {
       );
     }
 
+    // Map class IDs to database class names
+    const classNameMap = {
+      'ey-jupiter': 'EY jupiter',
+      'ey-venus': 'EY venus',
+      'ey-mercury': 'EY mercury',
+      'ey-neptune': 'EY neptune',
+    };
+
+    const className = classNameMap[classId];
+    if (!className) {
+      return Response.json(
+        { error: 'Invalid class ID' },
+        { status: 400 }
+      );
+    }
+
     // Get class and verify user has access
-    const classData = await prisma.class.findUnique({
-      where: { id: classId }
+    const classData = await prisma.class.findFirst({
+      where: { name: className }
     });
 
     if (!classData) {
@@ -164,7 +196,7 @@ export async function GET(request) {
       );
     }
 
-    if (user.role === 'student' && user.classId !== classId) {
+    if (user.role === 'student' && user.classId !== classData.id) {
       return Response.json(
         { error: 'Access denied' },
         { status: 403 }
@@ -173,7 +205,7 @@ export async function GET(request) {
 
     // Fetch suggestions
     const suggestions = await prisma.teacherSuggestion.findMany({
-      where: { classId },
+      where: { classId: classData.id },
       include: {
         teacher: {
           select: {
