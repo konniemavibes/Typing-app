@@ -131,6 +131,14 @@ export default function DashboardContent() {
   const [savingClass, setSavingClass] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Progress tracking states
+  const [userProgress, setUserProgress] = useState(null);
+  const [progressLoading, setProgressLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const CLASSES = [
     { id: 'ey-jupiter', name: 'EY Jupiter' },
     { id: 'ey-venus', name: 'EY Venus' },
@@ -272,6 +280,87 @@ export default function DashboardContent() {
         setUserData(user);
       }
       fetchData();
+    }
+  }, [user, userData]);
+
+  // Fetch user's typing minutes progress
+  const fetchUserProgress = async () => {
+    try {
+      setProgressLoading(true);
+      const response = await fetch('/api/student/progress/get-minutes?days=30');
+      
+      if (!response.ok) {
+        console.error('Failed to fetch user progress');
+        return;
+      }
+
+      const data = await response.json();
+      setUserProgress(data.data);
+    } catch (error) {
+      console.error('Error fetching user progress:', error);
+    } finally {
+      setProgressLoading(false);
+    }
+  };
+
+  // Fetch teacher suggestions for student's class
+  const fetchSuggestions = async () => {
+    if (!user?.classId && selectedClass === 'ey-jupiter') return; // Wait for class to be loaded
+
+    try {
+      setSuggestionsLoading(true);
+      // Map UI format back to database format for API
+      const classMap = {
+        'ey-jupiter': 'EY jupiter',
+        'ey-venus': 'EY venus',
+        'ey-mercury': 'EY mercury',
+        'ey-neptune': 'EY neptune',
+      };
+
+      // First get the class ID from user data
+      let classId = null;
+      if (userData?.classId) {
+        // Already have the database class name, need to convert to ID
+        const response = await fetch(`/api/teacher/suggestions?classId=${userData.classId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setSuggestions(data.data || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
+
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('/api/notifications?unreadOnly=false&limit=10');
+      
+      if (!response.ok) {
+        console.error('Failed to fetch notifications');
+        return;
+      }
+
+      const data = await response.json();
+      setNotifications(data.data || []);
+      setUnreadCount(data.unreadCount || 0);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  // Load progress, suggestions, and notifications on mount
+  useEffect(() => {
+    if (user) {
+      fetchUserProgress();
+      fetchNotifications();
+      // Fetch suggestions after user data is loaded
+      if (userData) {
+        fetchSuggestions();
+      }
     }
   }, [user, userData]);
 
@@ -957,6 +1046,112 @@ export default function DashboardContent() {
             </div>
           )}
         </div>
+
+        {/* Typing Minutes Progress */}
+        {userProgress && (
+          <div className={`mt-8 backdrop-blur-md border rounded-lg p-6 ${isDark ? 'bg-slate-800/50 border-slate-700/50' : 'bg-white/80 border-gray-200 shadow-sm'}`}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <ClockIcon className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
+                <h3 className={`text-xl font-bold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>
+                  ⏱️ Your Typing Practice Time
+                </h3>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className={`rounded-lg p-4 ${isDark ? 'bg-slate-700/50' : 'bg-emerald-50'}`}>
+                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-emerald-700'}`}>Total Minutes</p>
+                <p className={`text-3xl font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                  {userProgress.totalMinutes}
+                </p>
+                <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-emerald-600'}`}>Last 30 days</p>
+              </div>
+
+              <div className={`rounded-lg p-4 ${isDark ? 'bg-slate-700/50' : 'bg-blue-50'}`}>
+                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-blue-700'}`}>Average per Day</p>
+                <p className={`text-3xl font-bold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                  {userProgress.avgMinutesPerDay}
+                </p>
+                <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-blue-600'}`}>minutes</p>
+              </div>
+
+              <div className={`rounded-lg p-4 ${isDark ? 'bg-slate-700/50' : 'bg-purple-50'}`}>
+                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-purple-700'}`}>Practice Sessions</p>
+                <p className={`text-3xl font-bold ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                  {userProgress.sessionsCount}
+                </p>
+                <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-purple-600'}`}>total sessions</p>
+              </div>
+            </div>
+
+            {/* Practice breakdown by source */}
+            {Object.keys(userProgress.bySource).length > 0 && (
+              <div>
+                <p className={`text-sm font-semibold mb-3 ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Practice by Source</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {Object.entries(userProgress.bySource).map(([source, minutes]) => (
+                    <div key={source} className={`flex items-center justify-between p-3 rounded-lg ${isDark ? 'bg-slate-700/30' : 'bg-gray-100'}`}>
+                      <span className={`capitalize text-sm font-medium ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>
+                        {source}
+                      </span>
+                      <span className={`font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                        {minutes}m
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Teacher Suggestions */}
+        {suggestions && suggestions.length > 0 && (
+          <div className={`mt-8 backdrop-blur-md border rounded-lg p-6 ${isDark ? 'bg-slate-800/50 border-slate-700/50' : 'bg-white/80 border-gray-200 shadow-sm'}`}>
+            <div className="flex items-center gap-3 mb-6">
+              <SparklesIcon className={`w-6 h-6 ${isDark ? 'text-amber-400' : 'text-amber-500'}`} />
+              <h3 className={`text-xl font-bold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>
+                ✨ Practice Suggestions from Your Teacher
+              </h3>
+            </div>
+
+            <div className="space-y-4">
+              {suggestions.map((suggestion) => (
+                <div
+                  key={suggestion.id}
+                  className={`p-4 rounded-lg border-l-4 ${isDark ? 'bg-slate-700/30 border-amber-500' : 'bg-amber-50 border-amber-500'}`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className={`font-mono text-sm mb-2 p-3 rounded ${isDark ? 'bg-slate-800 text-slate-100' : 'bg-white text-gray-900'}`}>
+                        {suggestion.sentence}
+                      </p>
+                      {suggestion.description && (
+                        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
+                          💡 {suggestion.description}
+                        </p>
+                      )}
+                      <p className={`text-xs mt-2 ${isDark ? 'text-slate-500' : 'text-gray-500'}`}>
+                        From {suggestion.teacher.name || suggestion.teacher.email}
+                      </p>
+                    </div>
+                    <Link
+                      href="/typing-test"
+                      className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ml-4 ${
+                        isDark
+                          ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                          : 'bg-amber-500 hover:bg-amber-600 text-white'
+                      }`}
+                    >
+                      Practice Now
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* User Info Card */}
         <div className={`mt-8 backdrop-blur-md border rounded-lg p-6 ${isDark ? 'bg-slate-800/50 border-slate-700/50' : 'bg-white/80 border-gray-200 shadow-sm'}`}>

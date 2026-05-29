@@ -55,6 +55,7 @@ model Class {
   teacherId String   // Reference to the teacher
   teacher   User     @relation("TeacherClass", fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   students  User[]   @relation("StudentClass")
+  suggestions TeacherSuggestion[] @relation("ClassSuggestions")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -87,6 +88,11 @@ model User {
   raceParticipants RaceParticipant[] @relation("RaceParticipants")
   lessonProgress LessonProgress[]
   teacherClasses Class[]  @relation("TeacherClass") // Classes this user teaches
+  
+  // New relations for tracking and suggestions
+  typingMinutes TypingMinutes[] @relation("UserTypingMinutes")
+  teacherSuggestions TeacherSuggestion[] @relation("TeacherSuggestions")
+  notifications Notification[] @relation("UserNotifications")
 }
 
 model Score {
@@ -166,4 +172,68 @@ model Activity {
 
   @@index([userId, timestamp])
   @@index([timestamp])
+}
+
+// Typing Minutes Tracking
+model TypingMinutes {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String
+  user      User     @relation("UserTypingMinutes", fields: [userId], references: [id], onDelete: Cascade)
+  
+  minutes   Int      @default(0) // Total minutes typed in this session
+  lessonId  Int?     // Optional: which lesson was being typed
+  date      DateTime @default(now()) // Date of the session
+  source    String   @default("test") // "test", "lesson", "race"
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, date])
+  @@index([date])
+}
+
+// Teacher Suggestions
+model TeacherSuggestion {
+  id        String   @id @default(cuid()) @map("_id")
+  teacherId String
+  teacher   User     @relation("TeacherSuggestions", fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  classId   String
+  class     Class    @relation("ClassSuggestions", fields: [classId], references: [id], onDelete: Cascade)
+  
+  sentence  String   // The text to be typed
+  description String? // Optional description/instructions
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teacherId])
+  @@index([classId])
+  @@index([createdAt])
+}
+
+// Notifications
+model Notification {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String
+  user      User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      String   @default("suggestion") // "suggestion", "announcement", "achievement"
+  title     String
+  message   String
+  
+  // For suggestion type
+  suggestionId String?
+  
+  // Status
+  read      Boolean  @default(false)
+  readAt    DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, read])
+  @@index([createdAt])
 }

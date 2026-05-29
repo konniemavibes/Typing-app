@@ -40,11 +40,22 @@ export default function TeacherDashboardContent() {
   const [mounted, setMounted] = useState(false);
   const [isTabActive, setIsTabActive] = useState(true);
   const [lastActivityTime, setLastActivityTime] = useState(new Date());
-  const [activeTab, setActiveTab] = useState('students'); // 'students' or 'typing'
+  const [activeTab, setActiveTab] = useState('students'); // 'students', 'typing', 'progress', 'suggestions'
   const [stats, setStats] = useState({
     totalStudents: 0,
     activeStudents: 0,
     completedTests: 0,
+  });
+
+  // Progress tracking states
+  const [classProgress, setClassProgress] = useState(null);
+  const [progressLoading, setProgressLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [showSuggestionForm, setShowSuggestionForm] = useState(false);
+  const [newSuggestion, setNewSuggestion] = useState({
+    sentence: '',
+    description: ''
   });
 
   // Get user from localStorage (set during login)
@@ -153,8 +164,14 @@ export default function TeacherDashboardContent() {
   useEffect(() => {
     if (user && selectedClass) {
       fetchClassStudents();
+      if (activeTab === 'progress') {
+        fetchClassProgress();
+      }
+      if (activeTab === 'suggestions') {
+        fetchSuggestions();
+      }
     }
-  }, [selectedClass]);
+  }, [selectedClass, activeTab]);
 
   const fetchClassStudents = async () => {
     try {
@@ -194,6 +211,83 @@ export default function TeacherDashboardContent() {
       setStudents([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch class progress (minutes, statistics)
+  const fetchClassProgress = async () => {
+    try {
+      setProgressLoading(true);
+      const response = await fetch(`/api/teacher/progress?classId=${selectedClass}&days=30`);
+      
+      if (!response.ok) {
+        console.error('Failed to fetch class progress');
+        return;
+      }
+
+      const data = await response.json();
+      setClassProgress(data.data);
+    } catch (error) {
+      console.error('Error fetching class progress:', error);
+    } finally {
+      setProgressLoading(false);
+    }
+  };
+
+  // Fetch teacher suggestions
+  const fetchSuggestions = async () => {
+    try {
+      setSuggestionsLoading(true);
+      const response = await fetch(`/api/teacher/suggestions?classId=${selectedClass}`);
+      
+      if (!response.ok) {
+        console.error('Failed to fetch suggestions');
+        return;
+      }
+
+      const data = await response.json();
+      setSuggestions(data.data || []);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
+
+  // Create a new suggestion
+  const handleCreateSuggestion = async (e) => {
+    e.preventDefault();
+    
+    if (!newSuggestion.sentence.trim()) {
+      alert('Please enter a sentence to suggest');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/teacher/suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          classId: selectedClass,
+          sentence: newSuggestion.sentence,
+          description: newSuggestion.description
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create suggestion');
+      }
+
+      const data = await response.json();
+      alert(`✓ Suggestion created! Notifications sent to ${data.notificationsCreated} students.`);
+      
+      // Reset form and refresh suggestions
+      setNewSuggestion({ sentence: '', description: '' });
+      setShowSuggestionForm(false);
+      await fetchSuggestions();
+    } catch (error) {
+      console.error('Error creating suggestion:', error);
+      alert('Failed to create suggestion: ' + error.message);
     }
   };
 
@@ -545,7 +639,7 @@ export default function TeacherDashboardContent() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tab Switcher */}
-        <div className="mb-8 flex gap-4">
+        <div className="mb-8 flex gap-4 flex-wrap">
           <button
             onClick={() => setActiveTab('students')}
             className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 ${
@@ -556,6 +650,28 @@ export default function TeacherDashboardContent() {
           >
             <UserGroupIcon className="w-5 h-5" />
             Student Management
+          </button>
+          <button
+            onClick={() => setActiveTab('progress')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 ${
+              activeTab === 'progress'
+                ? 'bg-emerald-500 text-white shadow-lg'
+                : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:border-emerald-300'
+            }`}
+          >
+            <ChartBarIcon className="w-5 h-5" />
+            Class Progress
+          </button>
+          <button
+            onClick={() => setActiveTab('suggestions')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 ${
+              activeTab === 'suggestions'
+                ? 'bg-emerald-500 text-white shadow-lg'
+                : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:border-emerald-300'
+            }`}
+          >
+            <SparklesIcon className="w-5 h-5" />
+            Suggestions
           </button>
           <button
             onClick={() => setActiveTab('typing')}
@@ -1052,6 +1168,236 @@ export default function TeacherDashboardContent() {
               <p className="text-sm text-blue-800 dark:text-blue-300">
                 💡 <strong>Teacher Tip:</strong> Taking typing tests alongside your students helps you understand the experience they go through. It also sets a great example! Your stats are saved so you can track your own progress over time.
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* Class Progress Tab */}
+        {activeTab === 'progress' && (
+          <div>
+            {progressLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin"></div>
+              </div>
+            ) : classProgress ? (
+              <>
+                {/* Class Overview Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">Total Class Minutes</p>
+                        <p className="text-3xl font-bold text-emerald-600">{classProgress.statistics.totalMinutes}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">Last 30 days</p>
+                      </div>
+                      <ClockIcon className="w-12 h-12 text-emerald-500 opacity-20" />
+                    </div>
+                  </div>
+
+                  <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">Avg Minutes/Student</p>
+                        <p className="text-3xl font-bold text-blue-600">{classProgress.statistics.avgMinutesPerStudent}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">{classProgress.classInfo.totalStudents} students</p>
+                      </div>
+                      <UserGroupIcon className="w-12 h-12 text-blue-500 opacity-20" />
+                    </div>
+                  </div>
+
+                  <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">Days Tracked</p>
+                        <p className="text-3xl font-bold text-purple-600">{classProgress.statistics.daysTracked}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">Active days</p>
+                      </div>
+                      <ChartBarIcon className="w-12 h-12 text-purple-500 opacity-20" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Student Minutes Table */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      📊 Student Typing Minutes Breakdown
+                    </h3>
+                  </div>
+
+                  {classProgress.students.length === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-gray-600 dark:text-slate-400">No typing minutes recorded yet.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Student Name</th>
+                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Email</th>
+                            <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Total Minutes</th>
+                            <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Sessions</th>
+                            <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Avg/Session</th>
+                            <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Last Session</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+                          {classProgress.students.map((student, idx) => (
+                            <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                              <td className="px-6 py-4 text-sm text-gray-900 dark:text-white font-medium">{student.name}</td>
+                              <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-400">{student.email}</td>
+                              <td className="px-6 py-4 text-sm text-center text-emerald-600 dark:text-emerald-400 font-semibold">{student.totalMinutes}</td>
+                              <td className="px-6 py-4 text-sm text-center text-gray-600 dark:text-slate-400">{student.sessionsCount}</td>
+                              <td className="px-6 py-4 text-sm text-center text-blue-600 dark:text-blue-400 font-semibold">{student.averagePerSession}</td>
+                              <td className="px-6 py-4 text-sm text-center text-gray-600 dark:text-slate-400">
+                                {student.lastSession ? new Date(student.lastSession).toLocaleDateString() : 'Never'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Daily Activity Chart */}
+                {Object.keys(classProgress.byDay).length > 0 && (
+                  <div className="mt-8 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">📈 Daily Activity (Last 30 Days)</h3>
+                    <div className="space-y-3">
+                      {Object.entries(classProgress.byDay)
+                        .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
+                        .slice(0, 14) // Show last 14 days
+                        .map(([date, minutes]) => (
+                          <div key={date} className="flex items-center gap-4">
+                            <span className="text-sm font-medium text-gray-600 dark:text-slate-400 w-24">{new Date(date).toLocaleDateString()}</span>
+                            <div className="flex-1 bg-gray-200 dark:bg-slate-700 rounded-full h-6 overflow-hidden">
+                              <div
+                                className="bg-gradient-to-r from-emerald-500 to-blue-500 h-6 flex items-center justify-end px-2 text-xs font-semibold text-white"
+                                style={{ width: `${Math.min((minutes / 100) * 100, 100)}%` }}
+                              >
+                                {minutes > 10 && <span>{minutes}m</span>}
+                              </div>
+                            </div>
+                            <span className="text-sm font-semibold text-gray-700 dark:text-slate-300 w-12 text-right">{minutes}m</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-12 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                <p className="text-gray-600 dark:text-slate-400">No progress data available yet.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Suggestions Tab */}
+        {activeTab === 'suggestions' && (
+          <div>
+            {/* Create Suggestion Form */}
+            {!showSuggestionForm ? (
+              <div className="mb-8">
+                <button
+                  onClick={() => setShowSuggestionForm(true)}
+                  className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-lg font-semibold hover:bg-emerald-600 transition-colors"
+                >
+                  <SparklesIcon className="w-5 h-5" />
+                  Create New Suggestion
+                </button>
+              </div>
+            ) : (
+              <div className="mb-8 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Create a New Typing Suggestion</h3>
+                <form onSubmit={handleCreateSuggestion} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                      Sentence for Students to Type
+                    </label>
+                    <textarea
+                      value={newSuggestion.sentence}
+                      onChange={(e) => setNewSuggestion({ ...newSuggestion, sentence: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-white resize-none"
+                      rows="4"
+                      placeholder="Enter the sentence or text that students will practice typing..."
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                      Optional Description/Instructions
+                    </label>
+                    <input
+                      type="text"
+                      value={newSuggestion.description}
+                      onChange={(e) => setNewSuggestion({ ...newSuggestion, description: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-white"
+                      placeholder="E.g., 'Focus on accuracy' or 'Practice punctuation'"
+                    />
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button
+                      type="submit"
+                      className="flex items-center gap-2 px-6 py-2 bg-emerald-500 text-white rounded-lg font-semibold hover:bg-emerald-600 transition-colors"
+                    >
+                      <CheckCircleIcon className="w-5 h-5" />
+                      Send Suggestion
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowSuggestionForm(false)}
+                      className="flex items-center gap-2 px-6 py-2 bg-gray-300 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg font-semibold hover:bg-gray-400 dark:hover:bg-slate-600 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Suggestions List */}
+            <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  📝 Sent Suggestions
+                </h3>
+              </div>
+
+              {suggestionsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin"></div>
+                </div>
+              ) : suggestions.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-600 dark:text-slate-400">No suggestions sent yet. Create one to get started!</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-200 dark:divide-slate-700">
+                  {suggestions.map((suggestion) => (
+                    <div key={suggestion.id} className="p-6 hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="text-gray-900 dark:text-white font-semibold mb-2">{suggestion.sentence}</h4>
+                          {suggestion.description && (
+                            <p className="text-sm text-gray-600 dark:text-slate-400 mb-2">{suggestion.description}</p>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-500 dark:text-slate-500 whitespace-nowrap ml-4">
+                          {new Date(suggestion.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                        ✓ Sent to {classProgress?.classInfo.totalStudents || '?'} students
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
