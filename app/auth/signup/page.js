@@ -19,14 +19,14 @@ export default function SignupPage() {
     password: '',
     confirmPassword: '',
     gender: 'male',
-    classId: 'EY jupiter',
+    classId: 'ey-jupiter',
   });
   const [error, setError] = useState('');
   const classes = [
-    { id: 'EY jupiter', name: 'EY Jupiter' },
-    { id: 'EY venus', name: 'EY Venus' },
-    { id: 'EY mercury', name: 'EY Mercury' },
-    { id: 'EY neptune', name: 'EY Neptune' },
+    { id: 'ey-jupiter', name: 'EY Jupiter' },
+    { id: 'ey-venus', name: 'EY Venus' },
+    { id: 'ey-mercury', name: 'EY Mercury' },
+    { id: 'ey-neptune', name: 'EY Neptune' },
   ];
   const [loading, setLoading] = useState(false);
 

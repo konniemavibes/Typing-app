@@ -9,6 +9,18 @@ export async function POST(request) {
     // Normalize email: trim whitespace and convert to lowercase
     email = email.trim().toLowerCase();
 
+    // Map class formats to database class names
+    const classMap = {
+      'ey-jupiter': 'EY jupiter',
+      'ey-venus': 'EY venus',
+      'ey-mercury': 'EY mercury',
+      'ey-neptune': 'EY neptune',
+      'EY jupiter': 'EY jupiter',
+      'EY venus': 'EY venus',
+      'EY mercury': 'EY mercury',
+      'EY neptune': 'EY neptune',
+    };
+
     // Valid classes
     const validClasses = ['EY jupiter', 'EY venus', 'EY mercury', 'EY neptune'];
 
@@ -27,12 +39,15 @@ export async function POST(request) {
       );
     }
 
-    if (!classId || !validClasses.includes(classId)) {
+    // Normalize classId to database format
+    const normalizedClassId = classMap[classId];
+    if (!normalizedClassId) {
       return NextResponse.json(
-        { error: `Invalid class. Must be one of: ${validClasses.join(', ')}` },
+        { error: `Invalid class. Must be one of: ey-jupiter, ey-venus, ey-mercury, ey-neptune` },
         { status: 400 }
       );
     }
+    classId = normalizedClassId;
 
     // Check if user exists
     const existingUser = await prisma.user.findFirst({

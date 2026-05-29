@@ -51,8 +51,8 @@ export async function GET(request) {
       );
     }
 
-    // Verify teacher owns this class
-    const classData = await prisma.class.findFirst({
+    // Verify/create teacher class
+    let classData = await prisma.class.findFirst({
       where: {
         name: className,
         teacherId: teacher.id
@@ -62,11 +62,17 @@ export async function GET(request) {
       }
     });
 
+    // If class doesn't exist, create it
     if (!classData) {
-      return Response.json(
-        { error: 'Class not found or access denied' },
-        { status: 404 }
-      );
+      classData = await prisma.class.create({
+        data: {
+          name: className,
+          teacherId: teacher.id,
+        },
+        include: {
+          students: true
+        }
+      });
     }
 
     // Calculate date range

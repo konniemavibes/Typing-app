@@ -66,8 +66,8 @@ export async function POST(request) {
       );
     }
 
-    // Verify teacher owns this class
-    const classData = await prisma.class.findFirst({
+    // Verify/create teacher class
+    let classData = await prisma.class.findFirst({
       where: {
         name: className,
         teacherId: teacher.id
@@ -77,18 +77,24 @@ export async function POST(request) {
       }
     });
 
+    // If class doesn't exist, create it
     if (!classData) {
-      return Response.json(
-        { error: 'Class not found or access denied' },
-        { status: 404 }
-      );
+      classData = await prisma.class.create({
+        data: {
+          name: className,
+          teacherId: teacher.id,
+        },
+        include: {
+          students: true
+        }
+      });
     }
 
     // Create the suggestion
     const suggestion = await prisma.teacherSuggestion.create({
       data: {
         teacherId: teacher.id,
-        classId: classId,
+        classId: classData.id,
         sentence: sentence.trim(),
         description: description ? description.trim() : null
       }

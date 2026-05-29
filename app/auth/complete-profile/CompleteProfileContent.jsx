@@ -11,17 +11,17 @@ export default function CompleteProfileContent() {
   const [formData, setFormData] = useState({
     username: '',
     gender: 'male',
-    classId: 'EY jupiter',
+    classId: 'ey-jupiter',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isMounted, setIsMounted] = useState(false);
 
   const classes = [
-    { id: 'EY jupiter', name: 'EY Jupiter' },
-    { id: 'EY venus', name: 'EY Venus' },
-    { id: 'EY mercury', name: 'EY Mercury' },
-    { id: 'EY neptune', name: 'EY Neptune' },
+    { id: 'ey-jupiter', name: 'EY Jupiter' },
+    { id: 'ey-venus', name: 'EY Venus' },
+    { id: 'ey-mercury', name: 'EY Mercury' },
+    { id: 'ey-neptune', name: 'EY Neptune' },
   ];
 
   useEffect(() => {

@@ -128,8 +128,7 @@ export default function DashboardContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState('ey-jupiter');
-  const [savingClass, setSavingClass] = useState(false);
-  const fileInputRef = useRef(null);
+  const [fileInputRef, setFileInputRef] = useRef(null);
 
   // Progress tracking states
   const [userProgress, setUserProgress] = useState(null);
@@ -808,64 +807,20 @@ export default function DashboardContent() {
 
         {/* Class Selection Card */}
         <div className={`backdrop-blur-md border rounded-lg p-6 mb-8 ${isDark ? 'bg-slate-800/50 border-slate-700/50' : 'bg-white/80 border-gray-200 shadow-sm'}`}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <AcademicCapIcon className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
+          <div className="flex items-center gap-3">
+            <AcademicCapIcon className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
+            <div>
               <h3 className={`text-lg font-semibold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>
-                Class Assignment
+                Your Class
               </h3>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
+                {CLASSES.find((c) => c.id === selectedClass)?.name || 'Not assigned'}
+              </p>
             </div>
           </div>
-
-          <p className={`text-sm mb-4 ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
-            Select your class so your teacher can monitor your progress
+          <p className={`text-xs mt-2 ${isDark ? 'text-slate-500' : 'text-gray-500'}`}>
+            Class assignment is set during registration. Contact your teacher if you need to change it.
           </p>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            {CLASSES.map((cls) => (
-              <button
-                key={cls.id}
-                onClick={() => setSelectedClass(cls.id)}
-                className={`p-3 rounded-lg border-2 transition font-medium text-sm ${
-                  selectedClass === cls.id
-                    ? isDark
-                      ? 'border-blue-500 bg-blue-500/10 text-blue-400'
-                      : 'border-blue-500 bg-blue-50 text-blue-700'
-                    : isDark
-                    ? 'border-slate-700 bg-slate-700/50 text-slate-400 hover:border-blue-500/50'
-                    : 'border-gray-200 bg-gray-50 text-gray-700 hover:border-blue-300'
-                }`}
-              >
-                {cls.name}
-              </button>
-            ))}
-          </div>
-
-          <button
-            onClick={handleSaveClass}
-            disabled={savingClass}
-            className={`w-full px-6 py-2 rounded-lg font-medium transition ${
-              isDark
-                ? 'bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 text-white'
-                : 'bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white'
-            }`}
-          >
-            {savingClass ? 'Saving...' : 'Save Class Assignment'}
-          </button>
-
-          {message.text && (
-            <div className={`mt-3 p-2 rounded text-sm ${
-              message.type === 'success'
-                ? isDark
-                  ? 'bg-emerald-500/20 text-emerald-400'
-                  : 'bg-emerald-50 text-emerald-700'
-                : isDark
-                ? 'bg-red-500/20 text-red-400'
-                : 'bg-red-50 text-red-700'
-            }`}>
-              {message.text}
-            </div>
-          )}
         </div>
 
         {/* Advanced Stats Section */}

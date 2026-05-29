@@ -27,6 +27,26 @@ export async function POST(req) {
       );
     }
 
+    // Map class formats to database class names
+    const classMap = {
+      'ey-jupiter': 'EY jupiter',
+      'ey-venus': 'EY venus',
+      'ey-mercury': 'EY mercury',
+      'ey-neptune': 'EY neptune',
+      'EY jupiter': 'EY jupiter',
+      'EY venus': 'EY venus',
+      'EY mercury': 'EY mercury',
+      'EY neptune': 'EY neptune',
+    };
+
+    const normalizedClassId = classMap[classId];
+    if (!normalizedClassId) {
+      return Response.json(
+        { error: 'Invalid class. Must be one of: ey-jupiter, ey-venus, ey-mercury, ey-neptune' },
+        { status: 400 }
+      );
+    }
+
     // Validate username format (3-30 chars, alphanumeric)
     if (!/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
       return Response.json(
@@ -53,7 +73,7 @@ export async function POST(req) {
       data: {
         username,
         gender,
-        classId,
+        classId: normalizedClassId,
       },
       select: {
         id: true,
