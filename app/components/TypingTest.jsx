@@ -14,7 +14,7 @@ import { MobileKeyboard } from './MobileKeyboard';
 import NavBar from './Navbar';
 import { useTheme } from '../context/ThemeContext';
 import TypingResultsModal from './TypingResultsModal';
-import { trackTypingMinutes } from '../lib/progress-tracker';
+import { trackTypingMinutes } from '@/lib/progress-tracker';
 
 // Animation themes for typing area
 const animationThemes = {};

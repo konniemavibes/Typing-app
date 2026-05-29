@@ -20,7 +20,7 @@ import {
 import { MobileKeyboard } from '../components/MobileKeyboard';
 import { KeyboardGuide } from '../components/KeyboardGuide';
 import NavBar from '../components/Navbar';
-import { trackTypingMinutes } from '../lib/progress-tracker';
+import { trackTypingMinutes } from '@/lib/progress-tracker';
 
 // Animation themes for typing area
 const animationThemes = {
