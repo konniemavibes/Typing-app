@@ -5,15 +5,31 @@ import { authOptions } from '@/lib/auth';
 // Create a suggestion
 export async function POST(request) {
   try {
+    console.log('[CREATE-SUGGESTION] POST request started');
+    console.log('[CREATE-SUGGESTION] NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+    
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.email) {
+    console.log('[CREATE-SUGGESTION] Session result:', {
+      hasSession: !!session,
+      email: session?.user?.email,
+      userId: session?.user?.id,
+      role: session?.user?.role
+    });
+    
+    const { classId, sentence, description, userEmail } = await request.json();
+    
+    // Try to get email from session first, fallback to userEmail from request body
+    let emailToUse = session?.user?.email || userEmail;
+    
+    if (!emailToUse) {
+      console.error('[CREATE-SUGGESTION] No email found - session:', !!session, 'userEmail:', !!userEmail);
       return Response.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - No valid session' },
         { status: 401 }
       );
     }
-
-    const { classId, sentence, description } = await request.json();
+    
+    console.log('[CREATE-SUGGESTION] Using email:', emailToUse);
 
     if (!classId || !sentence) {
       return Response.json(
@@ -24,7 +40,7 @@ export async function POST(request) {
 
     // Get teacher ID from email
     const teacher = await prisma.user.findUnique({
-      where: { email: session.user.email }
+      where: { email: emailToUse }
     });
 
     if (!teacher || teacher.role !== 'teacher') {

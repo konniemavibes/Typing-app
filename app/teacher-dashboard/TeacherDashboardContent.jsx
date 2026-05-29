@@ -22,6 +22,7 @@ import {
   DocumentTextIcon,
   ArrowTrendingUpIcon,
   ExclamationTriangleIcon,
+  LightBulbIcon,
 } from '@heroicons/react/24/outline';
 import { sentences } from '../constants/sentences';
 
@@ -221,7 +222,9 @@ export default function TeacherDashboardContent() {
   const fetchClassProgress = async () => {
     try {
       setProgressLoading(true);
-      const response = await fetch(`/api/teacher/progress?classId=${selectedClass}&days=30`);
+      const response = await fetch(`/api/teacher/progress?classId=${selectedClass}&days=30`, {
+        credentials: 'include'
+      });
       
       if (!response.ok) {
         console.error('Failed to fetch class progress');
@@ -241,7 +244,9 @@ export default function TeacherDashboardContent() {
   const fetchSuggestions = async () => {
     try {
       setSuggestionsLoading(true);
-      const response = await fetch(`/api/teacher/suggestions?classId=${selectedClass}`);
+      const response = await fetch(`/api/teacher/suggestions?classId=${selectedClass}`, {
+        credentials: 'include'
+      });
       
       if (!response.ok) {
         console.error('Failed to fetch suggestions');
@@ -276,10 +281,12 @@ export default function TeacherDashboardContent() {
       const response = await fetch('/api/teacher/suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies in the request
         body: JSON.stringify({
           classId: selectedClass,
           sentence: newSuggestion.sentence,
-          description: newSuggestion.description
+          description: newSuggestion.description,
+          userEmail: user?.email // Fallback for Vercel session issues
         })
       });
 
@@ -925,9 +932,10 @@ export default function TeacherDashboardContent() {
         {/* Info Box */}
         <div className="mt-8 space-y-4">
           <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-lg p-4">
-            <p className="text-sm text-blue-800 dark:text-blue-300">
-              💡 <strong>Dashboard Info:</strong> This dashboard updates in real-time. Students in your class will appear here when they log in.
-              You can monitor their activity, typing speed, and test progress.
+            <p className="text-sm text-blue-800 dark:text-blue-300 flex items-start gap-3">
+              <LightBulbIcon className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <span><strong>Dashboard Info:</strong> This dashboard updates in real-time. Students in your class will appear here when they log in.
+              You can monitor their activity, typing speed, and test progress.</span>
             </p>
           </div>
 
@@ -1122,8 +1130,9 @@ export default function TeacherDashboardContent() {
                         </div>
                       </div>
 
-                      <p className="text-sm text-gray-500 dark:text-slate-400 mt-6 text-center">
-                        💡 Click to focus • Type directly • Use backspace to delete • Complete the sentence to finish
+                      <p className="text-sm text-gray-500 dark:text-slate-400 mt-6 text-center flex items-center justify-center gap-2">
+                        <LightBulbIcon className="w-4 h-4" />
+                        Click to focus • Type directly • Use backspace to delete • Complete the sentence to finish
                       </p>
                     </div>
                   </div>
@@ -1196,8 +1205,9 @@ export default function TeacherDashboardContent() {
 
             {/* Info Box for Typing Test */}
             <div className="mt-8 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-lg p-4">
-              <p className="text-sm text-blue-800 dark:text-blue-300">
-                💡 <strong>Teacher Tip:</strong> Taking typing tests alongside your students helps you understand the experience they go through. It also sets a great example! Your stats are saved so you can track your own progress over time.
+              <p className="text-sm text-blue-800 dark:text-blue-300 flex items-start gap-3">
+                <LightBulbIcon className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span><strong>Teacher Tip:</strong> Taking typing tests alongside your students helps you understand the experience they go through. It also sets a great example! Your stats are saved so you can track your own progress over time.</span>
               </p>
             </div>
           </div>

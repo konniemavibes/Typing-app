@@ -67,7 +67,7 @@ export async function GET(request) {
 // Mark notification as read
 export async function PUT(request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) {
       return Response.json(
         { error: 'Unauthorized' },
