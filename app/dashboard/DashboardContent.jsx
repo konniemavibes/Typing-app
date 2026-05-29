@@ -128,7 +128,7 @@ export default function DashboardContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState('ey-jupiter');
-  const [fileInputRef, setFileInputRef] = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Progress tracking states
   const [userProgress, setUserProgress] = useState(null);
@@ -417,43 +417,6 @@ export default function DashboardContent() {
       setMessage({ type: 'error', text: 'Failed to save settings' });
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleSaveClass = async () => {
-    setSavingClass(true);
-    setMessage({ type: '', text: '' });
-
-    try {
-      const classNameMap = {
-        'ey-jupiter': 'EY jupiter',
-        'ey-venus': 'EY venus',
-        'ey-mercury': 'EY mercury',
-        'ey-neptune': 'EY neptune',
-      };
-
-      const response = await fetch('/api/student/profile', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          classId: classNameMap[selectedClass],
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to update class');
-
-      const currentClassName = CLASSES.find((c) => c.id === selectedClass)?.name;
-      setMessage({
-        type: 'success',
-        text: `✅ Successfully assigned to ${currentClassName}!`,
-      });
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: `❌ Error: ${error.message}`,
-      });
-    } finally {
-      setSavingClass(false);
     }
   };
 
