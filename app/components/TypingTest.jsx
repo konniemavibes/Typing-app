@@ -14,6 +14,7 @@ import { MobileKeyboard } from './MobileKeyboard';
 import NavBar from './Navbar';
 import { useTheme } from '../context/ThemeContext';
 import TypingResultsModal from './TypingResultsModal';
+import { trackTypingMinutes } from '../lib/progress-tracker';
 
 // Animation themes for typing area
 const animationThemes = {};
@@ -389,6 +390,14 @@ export default function ProfessionalTypingLab() {
 
     // Save score if user is authenticated
     await saveScore(finalWpm, finalAccuracy);
+
+    // Track typing minutes
+    const durationMinutes = Math.max(1, Math.round((Date.now() - startTimeRef.current) / (1000 * 60)));
+    try {
+      await trackTypingMinutes(durationMinutes, 'test');
+    } catch (error) {
+      console.error('Error tracking typing minutes:', error);
+    }
 
     setGameState("results");
   }, [saveScore]);

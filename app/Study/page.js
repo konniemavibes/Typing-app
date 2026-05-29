@@ -20,6 +20,7 @@ import {
 import { MobileKeyboard } from '../components/MobileKeyboard';
 import { KeyboardGuide } from '../components/KeyboardGuide';
 import NavBar from '../components/Navbar';
+import { trackTypingMinutes } from '../lib/progress-tracker';
 
 // Animation themes for typing area
 const animationThemes = {
@@ -605,7 +606,7 @@ export default function ProfessionalTypingLab() {
     startExercise(selectedLesson, currentExerciseIndex);
   };
 
-  const nextExercise = () => {
+  const nextExercise = async () => {
     if (!selectedLesson) return;
 
     const nextIndex = currentExerciseIndex + 1;
@@ -616,6 +617,15 @@ export default function ProfessionalTypingLab() {
       // Lesson completed
       setCompletedLessons(prev => new Set([...prev, selectedLesson.id]));
       saveLessonCompletion(selectedLesson.id);
+      
+      // Track lesson minutes
+      const durationMinutes = Math.max(1, Math.round((Date.now() - startTimeRef.current) / (1000 * 60)));
+      try {
+        await trackTypingMinutes(durationMinutes, 'lesson', selectedLesson.id);
+      } catch (error) {
+        console.error('Error tracking lesson minutes:', error);
+      }
+      
       setGameState('lesson-complete');
       // Play completion sound
       setTimeout(() => {
