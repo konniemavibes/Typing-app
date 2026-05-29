@@ -19,6 +19,9 @@ import {
   SparklesIcon,
   ClockIcon,
   XMarkIcon,
+  DocumentTextIcon,
+  ArrowTrendingUpIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 import { sentences } from '../constants/sentences';
 
@@ -263,7 +266,13 @@ export default function TeacherDashboardContent() {
       return;
     }
 
+    if (!selectedClass) {
+      alert('Please select a class first');
+      return;
+    }
+
     try {
+      console.log('Creating suggestion for class:', selectedClass);
       const response = await fetch('/api/teacher/suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -274,11 +283,14 @@ export default function TeacherDashboardContent() {
         })
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to create suggestion');
+        const errorMessage = data.error || data.details || 'Failed to create suggestion';
+        console.error('API Error:', errorMessage);
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
       alert(`✓ Suggestion created! Notifications sent to ${data.notificationsCreated} students.`);
       
       // Reset form and refresh suggestions
@@ -739,7 +751,17 @@ export default function TeacherDashboardContent() {
                     ? 'text-emerald-900 dark:text-emerald-300'
                     : 'text-amber-900 dark:text-amber-300'
                 }`}>
-                  {isTabActive ? '✓ Teacher tab is ACTIVE' : '⚠ Teacher tab is INACTIVE'}
+                  {isTabActive ? (
+                    <span className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircleIcon className="w-4 h-4" />
+                      Teacher tab is ACTIVE
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
+                      <ExclamationTriangleIcon className="w-4 h-4" />
+                      Teacher tab is INACTIVE
+                    </span>
+                  )}
                 </p>
                 <p className={`text-sm ${
                   isTabActive
@@ -868,7 +890,10 @@ export default function TeacherDashboardContent() {
                             ></div>
                             {student.isActive ? (
                               <>
-                                <span>✓ On Tab</span>
+                                <span className="flex items-center gap-2">
+                    <CheckCircleIcon className="w-4 h-4" />
+                    On Tab
+                  </span>
                               </>
                             ) : (
                               <>
@@ -907,11 +932,17 @@ export default function TeacherDashboardContent() {
           </div>
 
           <div className="bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-lg p-4">
-            <h4 className="font-semibold text-indigo-900 dark:text-indigo-300 mb-3">📊 Tab Status Legend</h4>
+            <h4 className="font-semibold text-indigo-900 dark:text-indigo-300 mb-3 flex items-center gap-2">
+              <ChartBarIcon className="w-5 h-5" />
+              Tab Status Legend
+            </h4>
             <div className="space-y-2 text-sm text-indigo-800 dark:text-indigo-300">
               <div className="flex items-center gap-3">
                 <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                <span><strong>✓ On Tab</strong> - Student is actively on the typing page</span>
+              <span className="flex items-center gap-2">
+                <CheckCircleIcon className="w-4 h-4" />
+                On Tab
+              </span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-2.5 h-2.5 bg-red-500 rounded-full"></div>
@@ -1221,7 +1252,10 @@ export default function TeacherDashboardContent() {
                 <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
                   <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      📊 Student Typing Minutes Breakdown
+                      <span className="flex items-center gap-2">
+                        <ChartBarIcon className="w-5 h-5" />
+                        Student Typing Minutes Breakdown
+                      </span>
                     </h3>
                   </div>
 
@@ -1264,7 +1298,10 @@ export default function TeacherDashboardContent() {
                 {/* Daily Activity Chart */}
                 {Object.keys(classProgress.byDay).length > 0 && (
                   <div className="mt-8 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">📈 Daily Activity (Last 30 Days)</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                      <ArrowTrendingUpIcon className="w-6 h-6" />
+                      Daily Activity (Last 30 Days)
+                    </h3>
                     <div className="space-y-3">
                       {Object.entries(classProgress.byDay)
                         .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
@@ -1364,7 +1401,10 @@ export default function TeacherDashboardContent() {
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  📝 Sent Suggestions
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                    <DocumentTextIcon className="w-6 h-6" />
+                    Sent Suggestions
+                  </h3>
                 </h3>
               </div>
 
@@ -1392,7 +1432,10 @@ export default function TeacherDashboardContent() {
                         </span>
                       </div>
                       <p className="text-xs text-emerald-600 dark:text-emerald-400">
-                        ✓ Sent to {classProgress?.classInfo.totalStudents || '?'} students
+                        <span className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                          <CheckCircleIcon className="w-4 h-4" />
+                          Sent to {classProgress?.classInfo.totalStudents || '?'} students
+                        </span>
                       </p>
                     </div>
                   ))}
