@@ -1,10 +1,11 @@
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 // Create a suggestion
 export async function POST(request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) {
       return Response.json(
         { error: 'Unauthorized' },
@@ -97,7 +98,7 @@ export async function POST(request) {
 // Get suggestions for a class
 export async function GET(request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) {
       return Response.json(
         { error: 'Unauthorized' },
