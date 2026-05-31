@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { HomeIcon, ChartBarIcon, LightBulbIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '@/app/context/ThemeContext';
 import TypingTest from '@/app/components/TypingTest';
+import { RainbowNavWrapper } from '@/app/components/RainbowNavWrapper';
 
 export default function TypingTestPage() {
   const { data: session, status } = useSession();
@@ -88,6 +89,7 @@ export default function TypingTestPage() {
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800' : 'bg-gradient-to-br from-white via-gray-50 to-gray-100'}`}>
       {/* Navigation */}
+      <RainbowNavWrapper className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4 rounded-full">
       <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
         <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full shadow-lg backdrop-blur-md bg-opacity-90 dark:bg-opacity-90 px-2 py-3 flex items-center gap-1">
           {/* Home */}

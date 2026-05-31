@@ -25,6 +25,7 @@ import {
 import { useTheme } from './context/ThemeContext';
 import TypingTest from './components/TypingTest';
 import Silk from '../src/component/Silk';
+import { RainbowNavWrapper } from './components/RainbowNavWrapper';
 
 export default function Home() {
   const { data: session } = useSession();
@@ -64,7 +65,7 @@ export default function Home() {
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-[#1e1e1e] via-[#252526] to-[#2d2d30]' : 'bg-gradient-to-br from-white via-gray-50 to-gray-100'}`}>
-      <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
+      <RainbowNavWrapper className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
         <div className={`${theme === 'dark' ? 'bg-[#2d2d30]' : 'bg-white'} border ${theme === 'dark' ? 'border-[#3e3e42]' : 'border-gray-200'} rounded-full shadow-lg backdrop-blur-md ${theme === 'dark' ? 'bg-opacity-90' : 'bg-opacity-90'} px-2 py-3 flex items-center gap-1`}>
           {/* Home */}
           <Link
@@ -151,7 +152,7 @@ export default function Home() {
             )}
           </button>
         </div>
-      </nav>
+      </RainbowNavWrapper>
 
       {/* Typing Test Section - Below Navbar */}
       <section className={`pt-24 pb-16 px-4 sm:px-6 lg:px-8 ${theme === 'dark' ? 'bg-gradient-to-b from-[#1e1e1e] via-[#252526] to-[#2d2d30]/50' : 'bg-gradient-to-b from-white via-gray-50 to-transparent'}`}>
