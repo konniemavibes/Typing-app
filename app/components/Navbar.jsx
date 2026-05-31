@@ -19,6 +19,34 @@ import { MdMenuBook } from 'react-icons/md';
 import FuzzyText from '../components/FuzzyText';
 import ThemeToggle from './ThemeToggle';
 
+// Rainbow border styles
+const rainbowBorderStyles = `
+  @keyframes rainbow-rotate {
+    0% { 
+      background-position: 0% center;
+      filter: brightness(1);
+    }
+    50% {
+      filter: brightness(1.1);
+    }
+    100% { 
+      background-position: 200% center;
+      filter: brightness(1);
+    }
+  }
+  
+  .rainbow-border {
+    position: relative;
+    background: linear-gradient(90deg, 
+      #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000
+    );
+    background-size: 200% auto;
+    animation: rainbow-rotate 4s linear infinite;
+    padding: 3px;
+    border-radius: 0;
+  }
+`;
+
 const musicTracks = ["/run.mp3", "/auraox.mp3", "/whois.mp3"];
 
 export default function NavBar() {
@@ -130,15 +158,18 @@ export default function NavBar() {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center p-3 shadow-sm dark:shadow-md">
-      <span className="text-4xl font-[600] text-emerald-500 flex items-center gap-2">
-        <ComputerDesktopIcon className="w-8 h-8" />
-        Flash key
-        <span className="inline-block text-xl align-middle" style={{width: '35px', height: '35px'}}>
-          <FuzzyText baseIntensity={0.2}>💖</FuzzyText>
-        </span>
-        _.
-      </span>
+    <>
+      <style>{rainbowBorderStyles}</style>
+      <div className="rainbow-border sticky top-0 z-50">
+        <nav className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center p-3 shadow-sm dark:shadow-md">
+          <span className="text-4xl font-[600] text-emerald-500 flex items-center gap-2">
+            <ComputerDesktopIcon className="w-8 h-8" />
+            Flash key
+            <span className="inline-block text-xl align-middle" style={{width: '35px', height: '35px'}}>
+              <FuzzyText baseIntensity={0.2}>💖</FuzzyText>
+            </span>
+            _.
+          </span>
 
       <div className="flex items-center gap-4">
         {/* Navigation Links */}
@@ -260,5 +291,7 @@ export default function NavBar() {
 
       <audio ref={audioRef} src={musicTracks[currentTrack]} loop={true} />
     </nav>
+    </div>
+    </>
   );
 }

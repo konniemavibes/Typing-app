@@ -11,8 +11,15 @@ export default async function Dashboard() {
   
   try {
     // Get the session token from cookie
+    // In production (HTTPS), cookie is named __Secure-next-auth.session-token
+    // In development (HTTP), cookie is named next-auth.session-token
     const cookieStore = await cookies();
-    const sessionToken = cookieStore.get('next-auth.session-token')?.value;
+    let sessionToken = cookieStore.get('next-auth.session-token')?.value;
+    
+    // Fallback to secure cookie name for production
+    if (!sessionToken) {
+      sessionToken = cookieStore.get('__Secure-next-auth.session-token')?.value;
+    }
     
     console.log('📊 [DASHBOARD] Session token found:', !!sessionToken);
 
