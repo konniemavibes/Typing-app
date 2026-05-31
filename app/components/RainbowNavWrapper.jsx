@@ -1,39 +1,56 @@
 "use client";
 
 const rainbowBorderStyles = `
-  @keyframes rainbow-rotate {
-    0% { 
-      background-position: 0% center;
-      filter: brightness(1);
+  @keyframes rainbow-border-spin {
+    0% {
+      background-position: 0% 50%;
     }
     50% {
-      filter: brightness(1.1);
+      background-position: 100% 50%;
     }
-    100% { 
-      background-position: 200% center;
-      filter: brightness(1);
+    100% {
+      background-position: 0% 50%;
     }
   }
   
   .rainbow-border {
     position: relative;
-    background: linear-gradient(90deg, 
+    background: white;
+    border-radius: 12px;
+  }
+  
+  .rainbow-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: linear-gradient(90deg,
       #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000
     );
-    background-size: 200% auto;
-    animation: rainbow-rotate 4s linear infinite;
-    padding: 3px;
-    border-radius: 0;
+    background-size: 300% 300%;
+    animation: rainbow-border-spin 3s linear infinite;
+    border-radius: 12px;
+    z-index: -1;
   }
   
   .rainbow-border-thin {
     position: relative;
-    background: linear-gradient(90deg, 
+    background: white;
+    border-radius: 12px;
+  }
+  
+  .rainbow-border-thin::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    background: linear-gradient(90deg,
       #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000
     );
-    background-size: 200% auto;
-    animation: rainbow-rotate 4s linear infinite;
-    padding: 2px;
+    background-size: 300% 300%;
+    animation: rainbow-border-spin 3s linear infinite;
+    border-radius: 12px;
+    z-index: -1;
   }
 `;
 
