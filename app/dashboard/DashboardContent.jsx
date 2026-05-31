@@ -48,6 +48,7 @@ export default function DashboardContent() {
           const userData = JSON.parse(authUser);
           console.log('✅ [DASHBOARD] User data from localStorage:', userData.email);
           console.log('✅ [DASHBOARD] User role:', userData.role);
+          console.log('✅ [DASHBOARD] User classId:', userData.classId);
         
         // Check role BEFORE setting user state to avoid rendering issues
         if (userData.role === 'teacher') {
@@ -66,6 +67,17 @@ export default function DashboardContent() {
         
           // Only set user for students
           setUser(userData);
+          
+          // Initialize selectedClass from user's classId (database format like "EY jupiter")
+          if (userData.classId) {
+            const classMap = {
+              'EY jupiter': 'ey-jupiter',
+              'EY venus': 'ey-venus',
+              'EY mercury': 'ey-mercury',
+              'EY neptune': 'ey-neptune',
+            };
+            setSelectedClass(classMap[userData.classId] || 'ey-jupiter');
+          }
           // IMPORTANT: Don't set loading to false here!
           // Let the fetchData useEffect handle it after actual data is fetched
           
@@ -304,27 +316,15 @@ export default function DashboardContent() {
 
   // Fetch teacher suggestions for student's class
   const fetchSuggestions = async () => {
-    if (!user?.classId && selectedClass === 'ey-jupiter') return; // Wait for class to be loaded
+    if (!user?.classId) return; // Wait for class to be loaded
 
     try {
       setSuggestionsLoading(true);
-      // Map UI format back to database format for API
-      const classMap = {
-        'ey-jupiter': 'EY jupiter',
-        'ey-venus': 'EY venus',
-        'ey-mercury': 'EY mercury',
-        'ey-neptune': 'EY neptune',
-      };
-
-      // First get the class ID from user data
-      let classId = null;
-      if (userData?.classId) {
-        // Already have the database class name, need to convert to ID
-        const response = await fetch(`/api/teacher/suggestions?classId=${userData.classId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setSuggestions(data.data || []);
-        }
+      // Use selectedClass which is already in the correct format (ey-jupiter)
+      const response = await fetch(`/api/teacher/suggestions?classId=${selectedClass}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSuggestions(data.data || []);
       }
     } catch (error) {
       console.error('Error fetching suggestions:', error);
