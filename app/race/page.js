@@ -888,17 +888,34 @@ export default function RacePage() {
           display: flex;
           justify-content: center;
           align-items: center;
-          background: linear-gradient(90deg, #ff0000, #ff7700, #ffff00, #00ff00, #00ffff, #0077ff, #7700ff, #ff0000);
-          background-size: 200% 100%;
-          animation: gradient-rotate 3s linear infinite;
-          border-radius: 9999px;
           padding: 2px;
+        }
+        
+        .animated-gradient-border::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: conic-gradient(
+            from 0deg,
+            #ff0000,
+            #ff7700,
+            #ffff00,
+            #00ff00,
+            #00ffff,
+            #0077ff,
+            #7700ff,
+            #ff0000
+          );
+          border-radius: 9999px;
+          animation: gradient-rotate 3s linear infinite;
+          z-index: 0;
+          pointer-events: none;
         }
       `}</style>
       
       <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
         <div className="animated-gradient-border">
-          <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1" style={{position: 'relative', zIndex: 10}}>
+          <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1" style={{position: 'relative', zIndex: 10, width: 'fit-content'}}>
           {/* Home */}
           <Link
             href="/"
