@@ -954,7 +954,7 @@ export default function DashboardContent() {
                               : 'bg-rose-500/20 text-rose-300'
                           }`}
                         >
-                          {(score.accuracy * 100).toFixed(2)}%
+                          {score.accuracy.toFixed(2)}%
                         </span>
                       </td>
                     </tr>

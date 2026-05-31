@@ -52,7 +52,14 @@ export async function GET(request) {
 
     // Calculate statistics
     const totalMinutes = typingMinutes.reduce((sum, record) => sum + record.minutes, 0);
-    const avgMinutesPerDay = totalMinutes / Math.ceil(days);
+    
+    // Count unique days with activity instead of total days
+    const daysWithActivity = new Set();
+    typingMinutes.forEach(record => {
+      const dateStr = new Date(record.date).toISOString().split('T')[0];
+      daysWithActivity.add(dateStr);
+    });
+    const avgMinutesPerDay = daysWithActivity.size > 0 ? Math.round((totalMinutes / daysWithActivity.size) * 10) / 10 : 0;
     const sessionsCount = typingMinutes.length;
 
     // Group by source
