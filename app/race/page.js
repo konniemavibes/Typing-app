@@ -888,63 +888,17 @@ export default function RacePage() {
           display: flex;
           justify-content: center;
           align-items: center;
-        }
-        
-        .animated-gradient-border::before {
-          content: '';
-          position: absolute;
-          inset: 0;
+          background: linear-gradient(90deg, #ff0000, #ff7700, #ffff00, #00ff00, #00ffff, #0077ff, #7700ff, #ff0000);
+          background-size: 200% 100%;
+          animation: gradient-rotate 3s linear infinite;
+          border-radius: 9999px;
           padding: 2px;
-          background: conic-gradient(
-            from 0deg,
-            #ff0000,
-            #ff7700,
-            #ffff00,
-            #00ff00,
-            #00ffff,
-            #0077ff,
-            #7700ff,
-            #ff0000
-          );
-          border-radius: 9999px;
-          animation: gradient-rotate 3s linear infinite;
-          -webkit-mask: radial-gradient(circle at center, transparent 0%, black 2px);
-          mask: radial-gradient(circle at center, transparent 0%, black 2px);
-          pointer-events: none;
-        }
-        
-        .animated-gradient-border::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: conic-gradient(
-            from 0deg,
-            rgba(255, 0, 0, 0.4),
-            rgba(255, 119, 0, 0.3),
-            rgba(255, 255, 0, 0.2),
-            rgba(0, 255, 0, 0.3),
-            rgba(0, 255, 255, 0.4),
-            rgba(0, 119, 255, 0.3),
-            rgba(119, 0, 255, 0.3),
-            rgba(255, 0, 0, 0.4)
-          );
-          border-radius: 9999px;
-          animation: gradient-rotate 3s linear infinite;
-          filter: blur(12px);
-          opacity: 0.6;
-          pointer-events: none;
-          z-index: 1;
-        }
-        
-        .animated-gradient-content {
-          position: relative;
-          z-index: 10;
         }
       `}</style>
       
       <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
-        <div className="animated-gradient-border" style={{width: 'fit-content'}}>
-          <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1 animated-gradient-content" style={{position: 'relative', zIndex: 10}}>
+        <div className="animated-gradient-border">
+          <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1" style={{position: 'relative', zIndex: 10}}>
           {/* Home */}
           <Link
             href="/"
@@ -1009,7 +963,7 @@ export default function RacePage() {
             )}
           </button>
         </div>
-        </div>
+      </div>
       </nav>
       
       <div className="max-w-6xl mx-auto px-4 py-8 pt-24">
