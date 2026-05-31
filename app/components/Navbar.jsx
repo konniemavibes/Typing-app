@@ -131,7 +131,7 @@ export default function NavBar() {
   }, []);
 
   return (
-    <RainbowNavWrapper className="sticky top-0 z-50">
+    <RainbowNavWrapper className="sticky top-0 z-50 rounded-b-2xl overflow-hidden">
       <nav className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center p-3 shadow-sm dark:shadow-md">
         <span className="text-4xl font-[600] text-emerald-500 flex items-center gap-2">
           <ComputerDesktopIcon className="w-8 h-8" />
