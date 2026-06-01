@@ -953,7 +953,6 @@ export default function RacePage() {
           border-radius: 9999px;
           animation: gradient-rotate 3s linear infinite;
         }
-      `}
       `}</style>
       
       <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
