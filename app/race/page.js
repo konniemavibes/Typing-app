@@ -875,49 +875,46 @@ export default function RacePage() {
       {/* Pill Navigation */}
       <style>{`
         @keyframes gradient-rotate {
-          0% {
-            background-position: 0deg;
+          from {
+            transform: rotate(0deg);
           }
-          100% {
-            background-position: 360deg;
+          to {
+            transform: rotate(360deg);
           }
         }
         
-        .animated-gradient-border {
+        .gradient-glow-wrapper {
           position: relative;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          padding: 2px;
+          width: fit-content;
         }
         
-        .animated-gradient-border::before {
+        .gradient-glow-wrapper::before {
           content: '';
           position: absolute;
-          inset: -8px;
+          inset: -12px;
           background: conic-gradient(
             from 0deg,
-            rgba(0, 255, 255, 0.6),
-            rgba(0, 119, 255, 0.5),
-            rgba(119, 0, 255, 0.6),
-            rgba(255, 0, 119, 0.5),
-            rgba(255, 0, 0, 0.6),
-            rgba(255, 119, 0, 0.5),
-            rgba(255, 255, 0, 0.4),
-            rgba(0, 255, 0, 0.5),
-            rgba(0, 255, 255, 0.6)
+            rgba(0, 255, 255, 0.5),
+            rgba(0, 119, 255, 0.4),
+            rgba(119, 0, 255, 0.5),
+            rgba(255, 0, 119, 0.4),
+            rgba(255, 0, 0, 0.5),
+            rgba(255, 119, 0, 0.4),
+            rgba(255, 255, 0, 0.3),
+            rgba(0, 255, 0, 0.4),
+            rgba(0, 255, 255, 0.5)
           );
           border-radius: 9999px;
-          animation: gradient-rotate 3s linear infinite;
-          filter: blur(16px);
-          z-index: -1;
+          animation: gradient-rotate 4s linear infinite;
+          filter: blur(20px);
+          z-index: 0;
           pointer-events: none;
         }
         
-        .animated-gradient-border::after {
-          content: '';
-          position: absolute;
-          inset: 0;
+        .gradient-border-inner {
+          position: relative;
+          z-index: 2;
+          padding: 2px;
           background: conic-gradient(
             from 0deg,
             #00ffff,
@@ -932,21 +929,14 @@ export default function RacePage() {
           );
           border-radius: 9999px;
           animation: gradient-rotate 3s linear infinite;
-          z-index: 0;
-          pointer-events: none;
         }
-        
-        .navbar-content {
-          position: relative;
-          z-index: 10;
-          background: inherit;
-          border-radius: 9999px;
-        }
+      `}
       `}</style>
       
       <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
-        <div className="animated-gradient-border">
-          <div className="navbar-content bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1" style={{pointerEvents: 'auto'}}>
+        <div className="gradient-glow-wrapper">
+          <div className="gradient-border-inner">
+            <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1" style={{pointerEvents: 'auto'}}>
           {/* Home */}
           <Link
             href="/"
@@ -1010,8 +1000,9 @@ export default function RacePage() {
               <MoonIcon className="w-5 h-5" />
             )}
           </button>
+            </div>
+          </div>
         </div>
-      </div>
       </nav>
       
       <div className="max-w-6xl mx-auto px-4 py-8 pt-24">
