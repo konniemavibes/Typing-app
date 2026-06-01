@@ -935,11 +935,18 @@ export default function RacePage() {
           z-index: 0;
           pointer-events: none;
         }
+        
+        .navbar-content {
+          position: relative;
+          z-index: 10;
+          background: inherit;
+          border-radius: 9999px;
+        }
       `}</style>
       
       <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
         <div className="animated-gradient-border">
-          <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1" style={{position: 'relative', zIndex: 20, width: 'fit-content'}}>
+          <div className="navbar-content bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1" style={{pointerEvents: 'auto'}}>
           {/* Home */}
           <Link
             href="/"
