@@ -891,7 +891,30 @@ export default function RacePage() {
         .gradient-glow-wrapper::before {
           content: '';
           position: absolute;
-          inset: -12px;
+          inset: -16px;
+          background: conic-gradient(
+            from 0deg,
+            rgba(0, 255, 255, 0.8),
+            rgba(0, 119, 255, 0.7),
+            rgba(119, 0, 255, 0.8),
+            rgba(255, 0, 119, 0.7),
+            rgba(255, 0, 0, 0.8),
+            rgba(255, 119, 0, 0.7),
+            rgba(255, 255, 0, 0.6),
+            rgba(0, 255, 0, 0.7),
+            rgba(0, 255, 255, 0.8)
+          );
+          border-radius: 9999px;
+          animation: gradient-rotate 4s linear infinite;
+          filter: blur(24px);
+          z-index: 0;
+          pointer-events: none;
+        }
+        
+        .gradient-glow-wrapper::after {
+          content: '';
+          position: absolute;
+          inset: -10px;
           background: conic-gradient(
             from 0deg,
             rgba(0, 255, 255, 0.5),
@@ -906,8 +929,8 @@ export default function RacePage() {
           );
           border-radius: 9999px;
           animation: gradient-rotate 4s linear infinite;
-          filter: blur(20px);
-          z-index: 0;
+          filter: blur(16px);
+          z-index: 1;
           pointer-events: none;
         }
         
