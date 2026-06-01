@@ -886,27 +886,28 @@ export default function RacePage() {
         .gradient-glow-wrapper {
           position: relative;
           width: fit-content;
+          overflow: visible;
         }
         
         .gradient-glow-wrapper::before {
           content: '';
           position: absolute;
-          inset: -16px;
+          inset: -20px;
           background: conic-gradient(
             from 0deg,
-            rgba(0, 255, 255, 0.8),
-            rgba(0, 119, 255, 0.7),
-            rgba(119, 0, 255, 0.8),
-            rgba(255, 0, 119, 0.7),
-            rgba(255, 0, 0, 0.8),
-            rgba(255, 119, 0, 0.7),
-            rgba(255, 255, 0, 0.6),
-            rgba(0, 255, 0, 0.7),
-            rgba(0, 255, 255, 0.8)
+            rgba(0, 255, 255, 1),
+            rgba(0, 119, 255, 0.9),
+            rgba(119, 0, 255, 1),
+            rgba(255, 0, 119, 0.9),
+            rgba(255, 0, 0, 1),
+            rgba(255, 119, 0, 0.9),
+            rgba(255, 255, 0, 0.8),
+            rgba(0, 255, 0, 0.9),
+            rgba(0, 255, 255, 1)
           );
           border-radius: 9999px;
           animation: gradient-rotate 4s linear infinite;
-          filter: blur(24px);
+          filter: blur(32px);
           z-index: 0;
           pointer-events: none;
         }
@@ -914,22 +915,22 @@ export default function RacePage() {
         .gradient-glow-wrapper::after {
           content: '';
           position: absolute;
-          inset: -10px;
+          inset: -12px;
           background: conic-gradient(
             from 0deg,
-            rgba(0, 255, 255, 0.5),
-            rgba(0, 119, 255, 0.4),
-            rgba(119, 0, 255, 0.5),
-            rgba(255, 0, 119, 0.4),
-            rgba(255, 0, 0, 0.5),
-            rgba(255, 119, 0, 0.4),
-            rgba(255, 255, 0, 0.3),
-            rgba(0, 255, 0, 0.4),
-            rgba(0, 255, 255, 0.5)
+            rgba(0, 255, 255, 0.9),
+            rgba(0, 119, 255, 0.8),
+            rgba(119, 0, 255, 0.9),
+            rgba(255, 0, 119, 0.8),
+            rgba(255, 0, 0, 0.9),
+            rgba(255, 119, 0, 0.8),
+            rgba(255, 255, 0, 0.7),
+            rgba(0, 255, 0, 0.8),
+            rgba(0, 255, 255, 0.9)
           );
           border-radius: 9999px;
           animation: gradient-rotate 4s linear infinite;
-          filter: blur(16px);
+          filter: blur(24px);
           z-index: 1;
           pointer-events: none;
         }
@@ -955,7 +956,7 @@ export default function RacePage() {
         }
       `}</style>
       
-      <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
+      <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4" style={{overflow: 'visible'}}>
         <div className="gradient-glow-wrapper">
           <div className="gradient-border-inner">
             <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1" style={{pointerEvents: 'auto'}}>
