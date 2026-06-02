@@ -66,7 +66,7 @@ export default function Home() {
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-[#1e1e1e] via-[#252526] to-[#2d2d30]' : 'bg-gradient-to-br from-white via-gray-50 to-gray-100'}`}>
       <RainbowNavWrapper className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
-        <div className={`${theme === 'dark' ? 'bg-[#2d2d30]' : 'bg-white'} border ${theme === 'dark' ? 'border-[#3e3e42]' : 'border-gray-200'} rounded-full shadow-lg backdrop-blur-md ${theme === 'dark' ? 'bg-opacity-90' : 'bg-opacity-90'} px-2 py-3 flex items-center gap-1`}>
+        <div className={`${theme === 'dark' ? 'bg-slate-800' : 'bg-white'} rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1`}>
           {/* Home */}
           <Link
             href="/"

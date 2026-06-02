@@ -1,51 +1,28 @@
 "use client";
 
 const rainbowBorderStyles = `
-  @keyframes rainbow-rotate {
-    0% {
-      background-position: 0% center;
-    }
-    100% {
-      background-position: 200% center;
-    }
-  }
-  
-  .rainbow-border {
+  .gradient-glow-wrapper {
     position: relative;
+    width: fit-content;
   }
   
-  .rainbow-border::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg,
-      #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000
-    );
-    background-size: 200% 100%;
-    animation: rainbow-rotate 3s linear infinite;
-    border-radius: 0 0 16px 16px;
-  }
-  
-  .rainbow-border-thin {
+  .gradient-border-inner {
     position: relative;
-  }
-  
-  .rainbow-border-thin::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg,
-      #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000
+    z-index: 2;
+    padding: 2px;
+    background: conic-gradient(
+      from 0deg,
+      #00ffff,
+      #0077ff,
+      #7700ff,
+      #ff0077,
+      #ff0000,
+      #ff7700,
+      #ffff00,
+      #00ff00,
+      #00ffff
     );
-    background-size: 200% 100%;
-    animation: rainbow-rotate 3s linear infinite;
-    border-radius: 0 0 16px 16px;
+    border-radius: 9999px;
   }
 `;
 
@@ -53,8 +30,10 @@ export function RainbowNavWrapper({ children, className = "" }) {
   return (
     <>
       <style>{rainbowBorderStyles}</style>
-      <div className={`rainbow-border ${className}`} style={{borderRadius: '0 0 24px 24px'}}>
-        {children}
+      <div className={`gradient-glow-wrapper ${className}`}>
+        <div className="gradient-border-inner">
+          {children}
+        </div>
       </div>
     </>
   );
