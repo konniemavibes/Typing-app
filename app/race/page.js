@@ -874,15 +874,6 @@ export default function RacePage() {
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-white'}`}>
       {/* Pill Navigation */}
       <style>{`
-        @keyframes gradient-rotate {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        
         .gradient-glow-wrapper {
           position: relative;
           width: fit-content;
@@ -906,7 +897,6 @@ export default function RacePage() {
             rgba(0, 255, 255, 1)
           );
           border-radius: 9999px;
-          animation: gradient-rotate 4s linear infinite;
           filter: blur(32px);
           z-index: 0;
           pointer-events: none;
@@ -929,7 +919,6 @@ export default function RacePage() {
             rgba(0, 255, 255, 0.9)
           );
           border-radius: 9999px;
-          animation: gradient-rotate 4s linear infinite;
           filter: blur(24px);
           z-index: 1;
           pointer-events: none;
@@ -952,7 +941,6 @@ export default function RacePage() {
             #00ffff
           );
           border-radius: 9999px;
-          animation: gradient-rotate 3s linear infinite;
         }
       `}</style>
       
