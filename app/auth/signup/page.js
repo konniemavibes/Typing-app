@@ -107,23 +107,6 @@ export default function SignupPage() {
     }
   };
 
-  const handleOAuthSignIn = async (provider) => {
-    setOAuthLoading(provider);
-    try {
-      const callbackUrl = typeof window !== 'undefined' 
-        ? `${window.location.origin}/auth/callback`
-        : '/auth/callback';
-
-      await signIn(provider, { 
-        callbackUrl,
-        redirect: true 
-      });
-    } catch (err) {
-      console.error(`Error signing in with ${provider}:`, err);
-      setError(`Failed to sign in with ${provider}. Please try again.`);
-      setOAuthLoading(null);
-    }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
