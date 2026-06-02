@@ -24,6 +24,7 @@ import {
 } from '@heroicons/react/24/outline';
 import RaceResultsModal from '../components/RaceResultsModal';
 import ThemeToggle from '../components/ThemeToggle';
+import { RainbowNavWrapper } from '../components/RainbowNavWrapper';
 import { sentences } from '../constants/sentences';
 
 export default function RacePage() {
@@ -872,37 +873,8 @@ export default function RacePage() {
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-white'}`}>
-      {/* Pill Navigation */}
-      <style>{`
-        .gradient-glow-wrapper {
-          position: relative;
-          width: fit-content;
-        }
-        
-        .gradient-border-inner {
-          position: relative;
-          z-index: 2;
-          padding: 2px;
-          background: conic-gradient(
-            from 0deg,
-            #00ffff,
-            #0077ff,
-            #7700ff,
-            #ff0077,
-            #ff0000,
-            #ff7700,
-            #ffff00,
-            #00ff00,
-            #00ffff
-          );
-          border-radius: 9999px;
-        }
-      `}</style>
-      
-      <nav className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4">
-        <div className="gradient-glow-wrapper">
-          <div className="gradient-border-inner">
-            <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1" style={{pointerEvents: 'auto'}}>
+      <RainbowNavWrapper className="fixed top-0 left-0 right-0 flex justify-center z-50 pt-6 px-4" isDark={theme === 'dark'}>
+        <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-opacity-95 px-2 py-3 flex items-center gap-1" style={{pointerEvents: 'auto'}}>
           {/* Home */}
           <Link
             href="/"
@@ -966,10 +938,8 @@ export default function RacePage() {
               <MoonIcon className="w-5 h-5" />
             )}
           </button>
-            </div>
-          </div>
         </div>
-      </nav>
+      </RainbowNavWrapper>
       
       <div className="max-w-6xl mx-auto px-4 py-8 pt-24">
         {/* Home Screen */}
