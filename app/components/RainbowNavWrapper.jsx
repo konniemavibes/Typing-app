@@ -30,9 +30,11 @@ export function RainbowNavWrapper({ children, className = "" }) {
   return (
     <>
       <style>{rainbowBorderStyles}</style>
-      <div className={`gradient-glow-wrapper ${className}`}>
-        <div className="gradient-border-inner">
-          {children}
+      <div className={className}>
+        <div className="gradient-glow-wrapper">
+          <div className="gradient-border-inner">
+            {children}
+          </div>
         </div>
       </div>
     </>
