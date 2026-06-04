@@ -71,9 +71,6 @@ export async function POST(request) {
       where: {
         name: className,
         teacherId: teacher.id
-      },
-      include: {
-        students: true
       }
     });
 
@@ -83,9 +80,6 @@ export async function POST(request) {
         data: {
           name: className,
           teacherId: teacher.id,
-        },
-        include: {
-          students: true
         }
       });
     }
@@ -100,8 +94,23 @@ export async function POST(request) {
       }
     });
 
+    // Fetch students assigned to this class (query by class NAME, not ID)
+    const classStudents = await prisma.user.findMany({
+      where: {
+        classId: className,
+        role: 'student'
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true
+      }
+    });
+
+    console.log('[CREATE-SUGGESTION] Found students:', classStudents.length, 'for class:', className);
+
     // Create notifications for all students in the class
-    const notificationPromises = classData.students.map(student =>
+    const notificationPromises = classStudents.map(student =>
       prisma.notification.create({
         data: {
           userId: student.id,
@@ -119,8 +128,8 @@ export async function POST(request) {
       {
         success: true,
         data: suggestion,
-        notificationsCreated: classData.students.length,
-        message: `Suggestion created and notifications sent to ${classData.students.length} students`
+        notificationsCreated: classStudents.length,
+        message: `Suggestion created and notifications sent to ${classStudents.length} students`
       },
       { status: 201 }
     );

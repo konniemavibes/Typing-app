@@ -44,12 +44,17 @@ export default function TeacherDashboardContent() {
   const [mounted, setMounted] = useState(false);
   const [isTabActive, setIsTabActive] = useState(true);
   const [lastActivityTime, setLastActivityTime] = useState(new Date());
-  const [activeTab, setActiveTab] = useState('students'); // 'students', 'typing', 'progress', 'suggestions'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'students', 'typing', 'progress', 'suggestions'
   const [stats, setStats] = useState({
     totalStudents: 0,
     activeStudents: 0,
     completedTests: 0,
   });
+
+  // Classes overview state
+  const [teacherClasses, setTeacherClasses] = useState([]);
+  const [classesLoading, setClassesLoading] = useState(true);
+  const [totalStudents, setTotalStudents] = useState(0);
 
   // Progress tracking states
   const [classProgress, setClassProgress] = useState(null);
@@ -176,6 +181,13 @@ export default function TeacherDashboardContent() {
       }
     }
   }, [selectedClass, activeTab]);
+
+  // Fetch all teacher's classes on mount
+  useEffect(() => {
+    if (user) {
+      fetchTeacherClasses();
+    }
+  }, [user]);
 
   const fetchClassStudents = async () => {
     try {
@@ -307,6 +319,29 @@ export default function TeacherDashboardContent() {
     } catch (error) {
       console.error('Error creating suggestion:', error);
       alert('Failed to create suggestion: ' + error.message);
+    }
+  };
+
+  // Fetch all teacher's classes with student information
+  const fetchTeacherClasses = async () => {
+    try {
+      setClassesLoading(true);
+      const response = await fetch('/api/teacher/classes', {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch classes');
+        return;
+      }
+
+      const data = await response.json();
+      setTeacherClasses(data.classes || []);
+      setTotalStudents(data.totalStudents || 0);
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    } finally {
+      setClassesLoading(false);
     }
   };
 
@@ -660,6 +695,17 @@ export default function TeacherDashboardContent() {
         {/* Tab Switcher */}
         <div className="mb-8 flex gap-4 flex-wrap">
           <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 ${
+              activeTab === 'overview'
+                ? 'bg-emerald-500 text-white shadow-lg'
+                : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:border-emerald-300'
+            }`}
+          >
+            <AcademicCapIcon className="w-5 h-5" />
+            Classes Overview
+          </button>
+          <button
             onClick={() => setActiveTab('students')}
             className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 ${
               activeTab === 'students'
@@ -704,6 +750,119 @@ export default function TeacherDashboardContent() {
             Try Typing Test
           </button>
         </div>
+
+        {/* Classes Overview Tab */}
+        {activeTab === 'overview' && (
+          <div>
+            {classesLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <>
+                {/* Overview Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">Total Classes</p>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-white">{teacherClasses.length}</p>
+                      </div>
+                      <AcademicCapIcon className="w-12 h-12 text-blue-500 opacity-20" />
+                    </div>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">Total Students</p>
+                        <p className="text-3xl font-bold text-emerald-600">{totalStudents}</p>
+                      </div>
+                      <UserGroupIcon className="w-12 h-12 text-emerald-500 opacity-20" />
+                    </div>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">Avg Students/Class</p>
+                        <p className="text-3xl font-bold text-purple-600">{teacherClasses.length > 0 ? Math.round(totalStudents / teacherClasses.length) : 0}</p>
+                      </div>
+                      <ChartBarIcon className="w-12 h-12 text-purple-500 opacity-20" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Classes Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {teacherClasses.map((cls) => (
+                    <div key={cls.id} className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6 shadow-sm">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">{cls.name}</h3>
+                          <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">Class ID: {cls.displayId}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedClass(cls.displayId);
+                            setActiveTab('students');
+                          }}
+                          className="px-3 py-1.5 text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white rounded transition"
+                        >
+                          Manage
+                        </button>
+                      </div>
+
+                      {/* Class Stats */}
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="bg-blue-50 dark:bg-blue-500/10 rounded p-3">
+                          <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold">Students</p>
+                          <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{cls.studentCount}</p>
+                        </div>
+                        <div className="bg-purple-50 dark:bg-purple-500/10 rounded p-3">
+                          <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">Suggestions</p>
+                          <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">{cls.suggestionsCount}</p>
+                        </div>
+                      </div>
+
+                      {/* Students List */}
+                      <div className="border-t border-gray-200 dark:border-slate-700 pt-4">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Students in this class:</h4>
+                        {cls.students.length === 0 ? (
+                          <p className="text-sm text-gray-500 dark:text-slate-400 italic">No students assigned yet</p>
+                        ) : (
+                          <ul className="space-y-2">
+                            {cls.students.slice(0, 5).map((student) => (
+                              <li key={student.id} className="text-sm text-gray-600 dark:text-slate-400 flex items-center justify-between">
+                                <span>{student.username || student.name || student.email}</span>
+                                {student.lastScore && (
+                                  <span className="text-xs bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded">
+                                    {student.lastScore.wpm} WPM
+                                  </span>
+                                )}
+                              </li>
+                            ))}
+                            {cls.students.length > 5 && (
+                              <li className="text-xs text-gray-500 dark:text-slate-500 italic pt-2">
+                                +{cls.students.length - 5} more students
+                              </li>
+                            )}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {teacherClasses.length === 0 && (
+                  <div className="bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-8 text-center">
+                    <p className="text-yellow-800 dark:text-yellow-300 mb-4">
+                      No classes created yet. Classes will appear here once students are assigned to them.
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
         {/* Student Management Tab */}
         {activeTab === 'students' && (
