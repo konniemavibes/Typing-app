@@ -21,6 +21,8 @@ import {
   BoltIcon,
   Bars3Icon,
   AcademicCapIcon,
+  BellIcon,
+  CheckIcon,
 } from '@heroicons/react/24/outline';
 
 export default function DashboardContent() {
@@ -149,6 +151,7 @@ export default function DashboardContent() {
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
 
   const CLASSES = [
     { id: 'ey-jupiter', name: 'EY Jupiter' },
@@ -351,6 +354,30 @@ export default function DashboardContent() {
     }
   };
 
+  // Mark notification as read
+  const markNotificationAsRead = async (notificationId) => {
+    try {
+      const response = await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notificationId,
+          read: true
+        })
+      });
+
+      if (response.ok) {
+        // Update local notifications
+        setNotifications(prev => 
+          prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
+        );
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
   // Load progress, suggestions, and notifications on mount
   useEffect(() => {
     if (user) {
@@ -546,6 +573,23 @@ export default function DashboardContent() {
             <Bars3Icon className="w-6 h-6" />
           </button>
 
+          {/* Notifications Button - Mobile */}
+          <button
+            onClick={() => setShowNotificationsModal(true)}
+            className={`fixed top-20 right-4 lg:hidden p-2 rounded-lg z-40 transition relative ${
+              isDark
+                ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                : 'bg-white hover:bg-gray-100 text-gray-700 shadow-lg'
+            }`}
+          >
+            <BellIcon className="w-6 h-6" />
+            {unreadCount > 0 && (
+              <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
       {/* Settings Modal */}
       {showSettings && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -673,6 +717,128 @@ export default function DashboardContent() {
         </div>
       )}
 
+      {/* Notifications Modal */}
+      {showNotificationsModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className={`w-full max-w-2xl rounded-2xl p-6 transition-colors duration-300 ${isDark ? 'bg-slate-800 border border-slate-700' : 'bg-white shadow-xl'}`}>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className={`text-xl font-bold flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>
+                <BellIcon className="w-6 h-6" />
+                Notifications
+                {unreadCount > 0 && (
+                  <span className="inline-flex items-center justify-center px-3 py-1 text-xs font-bold text-white bg-red-500 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </h2>
+              <button
+                onClick={() => setShowNotificationsModal(false)}
+                className={`p-2 rounded-lg transition ${isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-gray-100 text-gray-500'}`}
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Notifications List */}
+            <div className={`max-h-96 overflow-y-auto space-y-3`}>
+              {notifications.length === 0 ? (
+                <div className={`text-center py-8 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
+                  <BellIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>No notifications yet</p>
+                </div>
+              ) : (
+                notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-4 rounded-lg border-l-4 transition ${
+                      notification.read
+                        ? isDark ? 'bg-slate-700/20 border-slate-600' : 'bg-gray-50 border-gray-300'
+                        : isDark ? 'bg-blue-500/10 border-blue-500' : 'bg-blue-50 border-blue-500'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-start gap-2">
+                          <h4 className={`font-semibold text-sm ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>
+                            {notification.title}
+                          </h4>
+                          {!notification.read && (
+                            <span className="inline-flex h-2 w-2 rounded-full bg-blue-500 mt-1.5" />
+                          )}
+                        </div>
+                        <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
+                          {notification.message}
+                        </p>
+                        
+                        {/* Display suggested sentence if available */}
+                        {notification.type === 'suggestion' && (
+                          <div className={`mt-3 p-3 rounded border-l-2 ${isDark ? 'bg-slate-700/30 border-amber-500' : 'bg-amber-50 border-amber-400'}`}>
+                            <p className={`text-xs font-medium mb-1 ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
+                              📝 Suggested sentence:
+                            </p>
+                            <p className={`font-mono text-sm ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>
+                              "{notification.message.match(/"([^"]+)"/)?.[1] || 'Type this sentence to practice'}"
+                            </p>
+                          </div>
+                        )}
+
+                        <p className={`text-xs mt-2 ${isDark ? 'text-slate-500' : 'text-gray-400'}`}>
+                          {new Date(notification.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        {!notification.read && (
+                          <button
+                            onClick={() => markNotificationAsRead(notification.id)}
+                            className={`px-3 py-1.5 text-xs font-medium rounded transition whitespace-nowrap ${
+                              isDark
+                                ? 'bg-blue-600/50 hover:bg-blue-700 text-blue-100'
+                                : 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-700'
+                            }`}
+                          >
+                            <CheckIcon className="w-4 h-4 inline mr-1" />
+                            Mark Read
+                          </button>
+                        )}
+                        {notification.type === 'suggestion' && (
+                          <Link
+                            href="/typing-test"
+                            onClick={() => setShowNotificationsModal(false)}
+                            className={`px-3 py-1.5 text-xs font-medium rounded transition whitespace-nowrap text-center ${
+                              isDark
+                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                            }`}
+                          >
+                            <SparklesIcon className="w-4 h-4 inline mr-1" />
+                            Practice
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className={`mt-6 pt-6 border-t ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
+              <button
+                onClick={() => setShowNotificationsModal(false)}
+                className={`w-full py-2 rounded-lg font-medium transition ${
+                  isDark
+                    ? 'bg-slate-700 hover:bg-slate-600 text-slate-100'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                }`}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="lg:ml-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 lg:pt-8">
         {/* Welcome Section with Race Button */}
@@ -684,20 +850,46 @@ export default function DashboardContent() {
             <p className={isDark ? 'text-slate-400' : 'text-gray-600'}>Track your typing progress and improve your speed</p>
           </div>
           
-          {/* Race Button - Special Positioning */}
-          <Link
-            href="/race"
-            className={`
-              group flex items-center gap-3 px-6 py-4 rounded-xl font-bold text-lg
-              transition-all duration-300 transform hover:scale-105 hover:shadow-2xl
-              bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600
-              text-white shadow-lg
-              whitespace-nowrap
-            `}
-          >
-            <span className="text-2xl group-hover:animate-bounce">🏎️</span>
-            Race Mode
-          </Link>
+          {/* Buttons Container */}
+          <div className="flex gap-4 flex-col sm:flex-row">
+            {/* Notifications Button */}
+            <button
+              onClick={() => setShowNotificationsModal(true)}
+              className={`
+                group flex items-center gap-3 px-6 py-4 rounded-xl font-bold text-lg
+                transition-all duration-300 transform hover:scale-105 hover:shadow-2xl
+                relative whitespace-nowrap
+                ${isDark 
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+                  : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                }
+                text-white shadow-lg
+              `}
+            >
+              <BellIcon className="w-6 h-6" />
+              Notifications
+              {unreadCount > 0 && (
+                <span className="absolute top-0 right-0 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Race Button - Special Positioning */}
+            <Link
+              href="/race"
+              className={`
+                group flex items-center gap-3 px-6 py-4 rounded-xl font-bold text-lg
+                transition-all duration-300 transform hover:scale-105 hover:shadow-2xl
+                bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600
+                text-white shadow-lg
+                whitespace-nowrap
+              `}
+            >
+              <span className="text-2xl group-hover:animate-bounce">🏎️</span>
+              Race Mode
+            </Link>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -972,7 +1164,7 @@ export default function DashboardContent() {
               <div className="flex items-center gap-3">
                 <ClockIcon className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
                 <h3 className={`text-xl font-bold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>
-                  ⏱️ Your Typing Practice Time
+                   Your Typing Practice Time
                 </h3>
               </div>
             </div>
