@@ -26,8 +26,16 @@ export async function GET(request) {
       );
     }
 
+    // Sample classes from signup form
+    const sampleClasses = [
+      { id: 'ey-jupiter', name: 'EY jupiter' },
+      { id: 'ey-venus', name: 'EY venus' },
+      { id: 'ey-mercury', name: 'EY mercury' },
+      { id: 'ey-neptune', name: 'EY neptune' }
+    ];
+
     // Get all classes for this teacher with student counts and details
-    const classes = await prisma.class.findMany({
+    const dbClasses = await prisma.class.findMany({
       where: { teacherId: teacher.id },
       include: {
         students: {
@@ -52,43 +60,58 @@ export async function GET(request) {
       orderBy: { name: 'asc' }
     });
 
-    // Also get students by class name (direct classId assignment)
-    const classNameMap = {
-      'EY jupiter': 'ey-jupiter',
-      'EY venus': 'ey-venus',
-      'EY mercury': 'ey-mercury',
-      'EY neptune': 'ey-neptune'
-    };
+    // Get all students to find which sample classes have students
+    const allStudents = await prisma.user.findMany({
+      where: { role: 'student' },
+      select: {
+        id: true,
+        classId: true,
+        name: true,
+        username: true,
+        email: true,
+        gender: true,
+        createdAt: true
+      }
+    });
 
-    const enrichedClasses = await Promise.all(
-      classes.map(async (cls) => {
-        // Get students assigned by className
-        const studentsByClassName = await prisma.user.findMany({
-          where: {
-            classId: cls.name,
-            role: 'student'
-          },
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            email: true,
-            gender: true,
-            createdAt: true
-          }
+    // Combine database classes with sample classes
+    const classMap = new Map();
+
+    // Add database classes
+    for (const cls of dbClasses) {
+      classMap.set(cls.name, {
+        ...cls,
+        dbClass: true,
+        isDatabase: true
+      });
+    }
+
+    // Add sample classes if they have students
+    for (const sampleClass of sampleClasses) {
+      const classStudents = allStudents.filter(s => s.classId === sampleClass.name);
+      
+      if (!classMap.has(sampleClass.name)) {
+        classMap.set(sampleClass.name, {
+          id: sampleClass.id,
+          name: sampleClass.name,
+          teacherId: teacher.id,
+          students: [],
+          suggestions: [],
+          createdAt: new Date(),
+          isDatabase: false
         });
+      }
+    }
 
-        // Merge both (students from relation and by className)
-        const allStudents = [...cls.students];
-        for (const student of studentsByClassName) {
-          if (!allStudents.find(s => s.id === student.id)) {
-            allStudents.push(student);
-          }
-        }
+    // Enrich all classes with student stats
+    const enrichedClasses = await Promise.all(
+      Array.from(classMap.values()).map(async (cls) => {
+        // Get all students for this class
+        const classStudents = allStudents.filter(s => s.classId === cls.name);
 
         // Get stats for each student
         const studentsWithStats = await Promise.all(
-          allStudents.map(async (student) => {
+          classStudents.map(async (student) => {
             const scores = await prisma.score.findMany({
               where: { userId: student.id },
               select: { wpm: true, accuracy: true },
@@ -103,11 +126,22 @@ export async function GET(request) {
           })
         );
 
+        // Get suggestions count (from database class if exists)
+        const suggestionsCount = cls.suggestions ? cls.suggestions.length : 0;
+
+        // Map class name to display ID
+        const classNameMap = {
+          'EY jupiter': 'ey-jupiter',
+          'EY venus': 'ey-venus',
+          'EY mercury': 'ey-mercury',
+          'EY neptune': 'ey-neptune'
+        };
+
         return {
           ...cls,
           students: studentsWithStats,
           studentCount: studentsWithStats.length,
-          suggestionsCount: cls.suggestions.length,
+          suggestionsCount,
           displayId: classNameMap[cls.name] || cls.name.toLowerCase().replace(/ /g, '-')
         };
       })
@@ -120,9 +154,9 @@ export async function GET(request) {
         email: teacher.email,
         name: teacher.name
       },
-      classes: enrichedClasses,
+      classes: enrichedClasses.sort((a, b) => a.name.localeCompare(b.name)),
       totalClasses: enrichedClasses.length,
-      totalStudents: enrichedClasses.reduce((sum, cls) => sum + cls.students.length, 0)
+      totalStudents: enrichedClasses.reduce((sum, cls) => sum + cls.studentCount, 0)
     });
   } catch (error) {
     console.error('[GET-TEACHER-CLASSES] Error:', error);
