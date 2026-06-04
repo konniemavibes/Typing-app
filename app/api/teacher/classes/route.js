@@ -26,12 +26,12 @@ export async function GET(request) {
       );
     }
 
-    // Sample classes from signup form
+    // Sample classes from signup form (normalized to database format)
     const sampleClasses = [
-      { id: 'ey-jupiter', name: 'EY jupiter' },
-      { id: 'ey-venus', name: 'EY venus' },
-      { id: 'ey-mercury', name: 'EY mercury' },
-      { id: 'ey-neptune', name: 'EY neptune' }
+      { id: 'ey-jupiter', name: 'EY Jupiter' },
+      { id: 'ey-venus', name: 'EY Venus' },
+      { id: 'ey-mercury', name: 'EY Mercury' },
+      { id: 'ey-neptune', name: 'EY Neptune' }
     ];
 
     // Get all classes for this teacher with student counts and details
@@ -131,10 +131,10 @@ export async function GET(request) {
 
         // Map class name to display ID
         const classNameMap = {
-          'EY jupiter': 'ey-jupiter',
-          'EY venus': 'ey-venus',
-          'EY mercury': 'ey-mercury',
-          'EY neptune': 'ey-neptune'
+          'EY Jupiter': 'ey-jupiter',
+          'EY Venus': 'ey-venus',
+          'EY Mercury': 'ey-mercury',
+          'EY Neptune': 'ey-neptune'
         };
 
         return {

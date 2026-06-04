@@ -38,10 +38,10 @@ export async function GET(req, { params }) {
 
     // Map class IDs to database class names
     const classNameMap = {
-      "ey-jupiter": "EY jupiter",
-      "ey-venus": "EY venus",
-      "ey-mercury": "EY mercury",
-      "ey-neptune": "EY neptune",
+      "ey-jupiter": "EY Jupiter",
+      "ey-venus": "EY Venus",
+      "ey-mercury": "EY Mercury",
+      "ey-neptune": "EY Neptune",
     };
 
     console.log('Available classIds:', Object.keys(classNameMap));

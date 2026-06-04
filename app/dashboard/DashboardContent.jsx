@@ -70,13 +70,13 @@ export default function DashboardContent() {
           // Only set user for students
           setUser(userData);
           
-          // Initialize selectedClass from user's classId (database format like "EY jupiter")
+          // Initialize selectedClass from user's classId (database format like "EY Jupiter")
           if (userData.classId) {
             const classMap = {
-              'EY jupiter': 'ey-jupiter',
-              'EY venus': 'ey-venus',
-              'EY mercury': 'ey-mercury',
-              'EY neptune': 'ey-neptune',
+              'EY Jupiter': 'ey-jupiter',
+              'EY Venus': 'ey-venus',
+              'EY Mercury': 'ey-mercury',
+              'EY Neptune': 'ey-neptune',
             };
             setSelectedClass(classMap[userData.classId] || 'ey-jupiter');
           }
@@ -250,10 +250,10 @@ export default function DashboardContent() {
           
           // Map database class names back to UI format
           const classMap = {
-            'EY jupiter': 'ey-jupiter',
-            'EY venus': 'ey-venus',
-            'EY mercury': 'ey-mercury',
-            'EY neptune': 'ey-neptune',
+            'EY Jupiter': 'ey-jupiter',
+            'EY Venus': 'ey-venus',
+            'EY Mercury': 'ey-mercury',
+            'EY Neptune': 'ey-neptune',
           };
           
           setSettingsForm({
@@ -271,10 +271,10 @@ export default function DashboardContent() {
             if (profileData.classId) {
               // Map database class names back to IDs
               const classMap = {
-                'EY jupiter': 'ey-jupiter',
-                'EY venus': 'ey-venus',
-                'EY mercury': 'ey-mercury',
-                'EY neptune': 'ey-neptune',
+                'EY Jupiter': 'ey-jupiter',
+                'EY Venus': 'ey-venus',
+                'EY Mercury': 'ey-mercury',
+                'EY Neptune': 'ey-neptune',
               };
               setSelectedClass(classMap[profileData.classId] || 'ey-jupiter');
             }
@@ -413,10 +413,10 @@ export default function DashboardContent() {
     try {
       // Convert UI format classId to DB format
       const classNameMap = {
-        'ey-jupiter': 'EY jupiter',
-        'ey-venus': 'EY venus',
-        'ey-mercury': 'EY mercury',
-        'ey-neptune': 'EY neptune',
+        'ey-jupiter': 'EY Jupiter',
+        'ey-venus': 'EY Venus',
+        'ey-mercury': 'EY Mercury',
+        'ey-neptune': 'EY Neptune',
       };
 
       const res = await fetch('/api/user', {

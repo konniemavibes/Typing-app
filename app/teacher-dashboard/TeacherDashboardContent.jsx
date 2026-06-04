@@ -1569,11 +1569,9 @@ export default function TeacherDashboardContent() {
             {/* Suggestions List */}
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                    <DocumentTextIcon className="w-6 h-6" />
-                    Sent Suggestions
-                  </h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                  <DocumentTextIcon className="w-6 h-6" />
+                  Sent Suggestions
                 </h3>
               </div>
 

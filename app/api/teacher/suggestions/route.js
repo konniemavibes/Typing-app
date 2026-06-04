@@ -52,10 +52,10 @@ export async function POST(request) {
 
     // Map class IDs to database class names
     const classNameMap = {
-      'ey-jupiter': 'EY jupiter',
-      'ey-venus': 'EY venus',
-      'ey-mercury': 'EY mercury',
-      'ey-neptune': 'EY neptune',
+      'ey-jupiter': 'EY Jupiter',
+      'ey-venus': 'EY Venus',
+      'ey-mercury': 'EY Mercury',
+      'ey-neptune': 'EY Neptune',
     };
 
     const className = classNameMap[classId];
@@ -177,10 +177,10 @@ export async function GET(request) {
 
     // Map class IDs to database class names
     const classNameMap = {
-      'ey-jupiter': 'EY jupiter',
-      'ey-venus': 'EY venus',
-      'ey-mercury': 'EY mercury',
-      'ey-neptune': 'EY neptune',
+      'ey-jupiter': 'EY Jupiter',
+      'ey-venus': 'EY Venus',
+      'ey-mercury': 'EY Mercury',
+      'ey-neptune': 'EY Neptune',
     };
 
     const className = classNameMap[classId];
@@ -192,9 +192,19 @@ export async function GET(request) {
     }
 
     // Get class and verify user has access
-    const classData = await prisma.class.findFirst({
+    let classData = await prisma.class.findFirst({
       where: { name: className }
     });
+
+    // If class doesn't exist and user is a teacher, create it
+    if (!classData && user.role === 'teacher') {
+      classData = await prisma.class.create({
+        data: {
+          name: className,
+          teacherId: user.id,
+        }
+      });
+    }
 
     if (!classData) {
       return Response.json(
@@ -211,7 +221,7 @@ export async function GET(request) {
       );
     }
 
-    if (user.role === 'student' && user.classId !== classData.id) {
+    if (user.role === 'student' && user.classId !== className) {
       return Response.json(
         { error: 'Access denied' },
         { status: 403 }
